@@ -1,0 +1,15 @@
+.DS_Store
+.sites-runtime/
+.sites-publish/
+.env
+.env.*
+__pycache__/
+
+node_modules/
+dist/
+coverage/
+*.local
+
+# Local deployment configuration and presentation preparation
+.openai/
+DEMO.md

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "1-100032-A-0",
+    "file": "audio/1-100032-A-0.wav",
+    "category": "dog",
+    "label": "Dog bark",
+    "fold": 1,
+    "sourceId": "100032",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-110389-A-0",
+    "file": "audio/1-110389-A-0.wav",
+    "category": "dog",
+    "label": "Dog bark",
+    "fold": 1,
+    "sourceId": "110389",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-17367-A-10",
+    "file": "audio/1-17367-A-10.wav",
+    "category": "rain",
+    "label": "Rain",
+    "fold": 1,
+    "sourceId": "17367",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-21189-A-10",
+    "file": "audio/1-21189-A-10.wav",
+    "category": "rain",
+    "label": "Rain",
+    "fold": 1,
+    "sourceId": "21189",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-28135-A-11",
+    "file": "audio/1-28135-A-11.wav",
+    "category": "sea_waves",
+    "label": "Sea waves",
+    "fold": 1,
+    "sourceId": "28135",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-28135-B-11",
+    "file": "audio/1-28135-B-11.wav",
+    "category": "sea_waves",
+    "label": "Sea waves",
+    "fold": 1,
+    "sourceId": "28135",
+    "take": "B",
+    "duration": 5
+  },
+  {
+    "id": "1-17150-A-12",
+    "file": "audio/1-17150-A-12.wav",
+    "category": "crackling_fire",
+    "label": "Crackling fire",
+    "fold": 1,
+    "sourceId": "17150",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-17565-A-12",
+    "file": "audio/1-17565-A-12.wav",
+    "category": "crackling_fire",
+    "label": "Crackling fire",
+    "fold": 1,
+    "sourceId": "17565",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-21934-A-38",
+    "file": "audio/1-21934-A-38.wav",
+    "category": "clock_tick",
+    "label": "Clock tick",
+    "fold": 1,
+    "sourceId": "21934",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-21935-A-38",
+    "file": "audio/1-21935-A-38.wav",
+    "category": "clock_tick",
+    "label": "Clock tick",
+    "fold": 1,
+    "sourceId": "21935",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-26143-A-21",
+    "file": "audio/1-26143-A-21.wav",
+    "category": "sneezing",
+    "label": "Sneeze",
+    "fold": 1,
+    "sourceId": "26143",
+    "take": "A",
+    "duration": 5
+  },
+  {
+    "id": "1-29680-A-21",
+    "file": "audio/1-29680-A-21.wav",
+    "category": "sneezing",
+    "label": "Sneeze",
+    "fold": 1,
+    "sourceId": "29680",
+    "take": "A",
+    "duration": 5
+  }
+]
