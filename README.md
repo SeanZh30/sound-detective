@@ -2,6 +2,41 @@
 
 A React + FastAPI application that classifies environmental audio with a **PyTorch MLP trained from scratch and a fine-tuned AudioSet-pretrained PANNs Cnn6**. Listen, inspect waveforms, annotate intervals, and ask the model to identify six sounds. The original HW1 viewer and blind-listening challenge are preserved.
 
+## Project organization
+
+```text
+sound-detective/
+├── frontend/                 # React + Vite application
+│   ├── src/
+│   ├── public/               # Icons and companion artwork
+│   └── package.json
+├── backend/
+│   ├── app.py                # FastAPI predictions, metrics and sample audio
+│   └── model/                # Trained MLP, fine-tuned PANNs and baseline weights
+├── data/
+│   ├── samples/              # 18 public demo WAVs, metadata and attribution
+│   ├── raw/                  # Downloaded training dataset (Git-ignored)
+│   └── cache/                # Features/source checkpoint (Git-ignored)
+├── training/
+│   ├── train.py              # MLP training and baseline evaluation
+│   ├── model.py              # Small MLP definition
+│   ├── finetune.py           # PANNs partial fine-tuning
+│   ├── pretrained.py         # Adapted PANNs architecture
+│   ├── features.py
+│   ├── prepare.py
+│   ├── notebooks/            # Two executed Jupyter notebooks
+│   └── results/              # Saved metrics, provenance and plots
+├── tests/                    # Python pipeline/API tests
+├── scripts/                  # Sample restoration and notebook generation
+├── docs/                     # Demo guide and model explanation
+├── third_party/              # PANNs licenses and attribution
+├── requirements.txt
+├── requirements-notebook.txt
+└── README.md
+```
+
+All commands below run from the repository root. React dependencies and build output live inside `frontend/`. FastAPI serves `/audio` directly from `data/samples/audio`; Vite proxies audio and API requests to it, so both servers are required. The sample WAVs are stored only once.
+
 ## Run the complete application
 
 Requirements: Python 3.11, Node.js >=22.12, npm. Both trained checkpoints and 18 demonstration WAVs are included; downloading the training dataset is unnecessary for inference. Internet is needed to install dependencies.
@@ -10,7 +45,7 @@ Requirements: Python 3.11, Node.js >=22.12, npm. Both trained checkpoints and 18
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-npm ci
+npm --prefix frontend ci
 ```
 
 Start the backend in terminal 1 (from the repository root):
@@ -23,10 +58,10 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 Start the frontend in terminal 2:
 
 ```sh
-npm run dev
+npm --prefix frontend run dev
 ```
 
-Open http://127.0.0.1:5173. Vite forwards `/api` to the local backend. Both processes must be running. For a production-build preview use `npm run build && npm run preview` with the backend still running. A static-only deployment cannot run the Python model.
+Open http://127.0.0.1:5173. Vite forwards `/api` to the local backend. Both processes must be running. For a production-build preview use `npm --prefix frontend run build && npm --prefix frontend run preview` with the backend still running. A static-only deployment cannot run the Python model.
 
 ## HW2 features
 
@@ -54,7 +89,7 @@ Six ESC-50 categories: dog, rain, sea waves, crackling fire, clock tick, sneezin
 
 Official folds keep excerpts of the same source recording together. The training script asserts disjoint source IDs. No test data is used for normalization, early stopping, or model selection. The original 12 library clips belong to **training fold 1**; they are explicitly labeled as training examples in the prediction panel. Six additional fold-5 clips are bundled, one per class selected by the first filename in alphabetical order, independently of prediction quality. Reported test metrics use all 48 test clips.
 
-The per-recording source metadata and SHA-256 hashes are in `artifacts/data-provenance.json`. Dataset attribution/license remains in `public/ESC50-LICENSE.txt`, including the added test recordings.
+The per-recording source metadata and SHA-256 hashes are in `training/results/data-provenance.json`. Dataset attribution/license remains in `data/samples/ESC50-LICENSE.txt`, including the added test recordings.
 
 ## Jupyter notebooks (recommended training workflow)
 
@@ -68,8 +103,8 @@ jupyter lab
 
 Open and run in order:
 
-1. [01 — MLP from scratch](notebooks/01_mlp_from_scratch.ipynb): features, model definition, explicit forward/backward/SGD loop, validation selection, logistic-regression baseline, final evaluation and export.
-2. [02 — Pretrained audio fine-tuning](notebooks/02_pretrained_audio_finetuning.ipynb): pretrained architecture and verified download, layer freezing, explicit fine-tuning loop, checkpoint selection, test evaluation and three-model comparison.
+1. [01 — MLP from scratch](training/notebooks/01_mlp_from_scratch.ipynb): features, model definition, explicit forward/backward/SGD loop, validation selection, logistic-regression baseline, final evaluation and export.
+2. [02 — Pretrained audio fine-tuning](training/notebooks/02_pretrained_audio_finetuning.ipynb): pretrained architecture and verified download, layer freezing, explicit fine-tuning loop, checkpoint selection, test evaluation and three-model comparison.
 
 Both notebooks were executed end to end, and their outputs are saved. They contain the training code rather than just calling an external training script. Use **Restart Kernel and Run All** to reproduce. Run 01 before 02. Outputs overwrite the corresponding model artifacts; restart the backend afterwards. GPU results may vary slightly across platforms. `scripts/build-notebooks.py` rebuilds notebook sources from the matching CLI implementation and clears outputs, so do not run it merely to view notebooks.
 
@@ -94,7 +129,7 @@ The network contains 11,206 trainable parameters and one hidden layer. Cross-ent
 
 The MLP improves accuracy by 10.42 percentage points on this split. It makes seven mistakes, including confusion between dog barks and clock ticks. Short transient sounds may have similar aggregated spectral features. Temporal averaging discards event order, and 144 training recordings are a small sample. These are six-class, single-split results, not a claim about full ESC-50 or arbitrary sounds. Softmax scores are not calibrated confidence, and unsupported sounds will still be assigned one of the six labels.
 
-![Training and validation curves](artifacts/learning-curves.png)
+![Training and validation curves](training/results/learning-curves.png)
 
 ## Pretrained audio model: PANNs Cnn6
 
@@ -108,8 +143,8 @@ One fixed schedule, chosen before inspecting this model's test result: AdamW; le
 
 The three models share the same 144/48/48 split. PANNs uses extra pretraining data and a different architecture/input representation, so the comparison does not isolate the causal contribution of pretraining. The same test fold was already reported for the MLP; this is a fixed homework comparison, not a new blind benchmark. No parameters were changed based on the pretrained model's test score. Upstream pretraining overlap has not been independently audited.
 
-![Pretrained training curves](artifacts/pretrained-learning-curves.png)
-![Three-model comparison](artifacts/model-comparison.png)
+![Pretrained training curves](training/results/pretrained-learning-curves.png)
+![Three-model comparison](training/results/model-comparison.png)
 
 ### Reproduce training with the CLI
 
@@ -120,14 +155,14 @@ python -m training.train
 python -m training.finetune
 ```
 
-The download is approximately 106 MB. `data/` is ignored by Git. Training replaces `artifacts/sound-mlp.pt`, `baseline.npz`, `metrics.json`, and `learning-curves.png`; reload the backend after retraining because it caches the checkpoint. The pinned inference/training environment is in `requirements.txt`, with notebook tools in `requirements-notebook.txt`; minor numerical differences can occur on other platforms. Test data is evaluated after the declared validation search; do not tune the model based on test results.
+The download is approximately 106 MB. `data/raw/` (downloaded training WAVs/metadata) and `data/cache/` (features and source pretrained weights) are ignored by Git. Only the 18 public demonstration clips in `data/samples/` are committed. Training writes model checkpoints to `backend/model/` and metrics/plots to `training/results/`; reload the backend after retraining because it caches the checkpoint. The pinned inference/training environment is in `requirements.txt`, with notebook tools in `requirements-notebook.txt`; minor numerical differences can occur on other platforms. Test data is evaluated after the declared validation search; do not tune the model based on test results.
 
 ### Validation
 
 ```sh
 python -m pytest -q
-npm test
-npm run build
+npm --prefix frontend test
+npm --prefix frontend run build
 ```
 
 Backend tests check real inference against saved test probabilities, filename independence, invalid/silent/oversized uploads, source separation, and learning via backpropagation. Frontend tests cover the original viewer plus inference, blind-mode gating, stale requests, and backend errors. A browser walkthrough additionally verifies real HTTP inference, WAV upload, report rendering, and mobile layout.
@@ -142,13 +177,13 @@ Backend tests check real inference against saved test probabilities, filename in
 | `training/train.py` | MLP training, validation selection, baseline, final evaluation |
 | `training/pretrained.py` | Adapted PANNs architecture and verified pretrained loading |
 | `training/finetune.py` | Partial fine-tuning, selection, evaluation, weight-change evidence |
-| `notebooks/` | Two executed notebooks with explicit training cells |
-| `artifacts/sound-panns.pt` | Complete fine-tuned PANNs checkpoint for offline inference |
+| `training/notebooks/` | Two executed notebooks with explicit training cells |
+| `backend/model/sound-panns.pt` | Complete fine-tuned PANNs checkpoint for offline inference |
 | `backend/app.py` | FastAPI prediction and metrics endpoints |
-| `artifacts/sound-mlp.pt` | Trained weights and training-only scaling parameters |
-| `artifacts/metrics.json` | Full curves, trial selection, metrics, and test predictions |
-| `src/components/PredictionPanel.jsx` | Interactive predictions and upload |
-| `src/components/TrainingReport.jsx` | Saved experiment dashboard |
+| `backend/model/sound-mlp.pt` | Trained weights and training-only scaling parameters |
+| `training/results/metrics.json` | Full curves, trial selection, metrics, and test predictions |
+| `frontend/src/components/PredictionPanel.jsx` | Interactive predictions and upload |
+| `frontend/src/components/TrainingReport.jsx` | Saved experiment dashboard |
 | `docs/DEMO.md` | Three-minute demonstration plan |
 | `docs/UNDERSTAND_THE_MODEL.md` | Explanation guide for the student |
 
@@ -165,8 +200,8 @@ OpenAI Codex was used to implement the HW2 pipeline, backend, interface, tests, 
 
 ## Pixel-art credits
 
-Pikachu, Eevee, and Jigglypuff are displayed using unmodified Generation V sprites from [PokeAPI/sprites](https://github.com/PokeAPI/sprites). The original PNG files, upstream repository license, and per-file source URLs are bundled in [`public/pokemon/`](public/pokemon/CREDITS.txt). Pokémon artwork and characters remain the property of their respective owners. This is an unaffiliated non-commercial student project. Companion images are decorative and do not classify or alter the audio data.
+Pikachu, Eevee, and Jigglypuff are displayed using unmodified Generation V sprites from [PokeAPI/sprites](https://github.com/PokeAPI/sprites). The original PNG files, upstream repository license, and per-file source URLs are bundled in [`frontend/public/pokemon/`](frontend/public/pokemon/CREDITS.txt). Pokémon artwork and characters remain the property of their respective owners. This is an unaffiliated non-commercial student project. Companion images are decorative and do not classify or alter the audio data.
 
 ## Dataset license
 
-ESC-50 audio is CC BY-NC, with CC BY terms for ESC-10 subset recordings. Preserve the upstream license and individual source attributions in `public/ESC50-LICENSE.txt`. Original WAVs are unchanged. This is a non-commercial student project.
+ESC-50 audio is CC BY-NC, with CC BY terms for ESC-10 subset recordings. Preserve the upstream license and individual source attributions in `data/samples/ESC50-LICENSE.txt`. Original WAVs are unchanged. This is a non-commercial student project.

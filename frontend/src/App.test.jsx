@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from './App.jsx';
-import clips from './dataset.json';
+import clips from '../../data/samples/dataset.json';
 import { STORAGE_KEY } from './model.js';
 
 async function mount() {

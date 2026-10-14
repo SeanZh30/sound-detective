@@ -89,9 +89,9 @@ def waveform32k(audio, sr):
     return librosa.util.fix_length(audio, size=160000)
 
 def load_audioset():
-    path = ROOT / 'data/Cnn6_mAP=0.343.pth'
+    path = ROOT / 'data/cache/Cnn6_mAP=0.343.pth'
     if not path.exists():
-        path.parent.mkdir(exist_ok=True)
+        path.parent.mkdir(parents=True, exist_ok=True)
         with urlopen(PRETRAIN_URL, timeout=120) as response:
             content = response.read()
         if hashlib.md5(content).hexdigest() != PRETRAIN_MD5:

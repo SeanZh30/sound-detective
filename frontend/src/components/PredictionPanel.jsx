@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import testClips from '../test-clips.json';
+import testClips from '../../../data/samples/test-clips.json';
 
 async function readResponse(response) {
   const data = await response.json();

@@ -12,7 +12,11 @@ from training.pretrained import load_audioset, waveform32k, PRETRAIN_VERSION, PR
 from training.train import scores
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'artifacts'
+OUT = ROOT / 'training/results'
+MODEL_DIR = ROOT / 'backend/model'
+OUT.mkdir(parents=True, exist_ok=True)
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
+(ROOT / 'data/cache').mkdir(parents=True, exist_ok=True)
 SEED = 7400
 
 def main():
@@ -23,7 +27,7 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
     model = load_audioset().to(device)
     initial_tail = {k: v.detach().cpu().clone() for k, v in model.state_dict().items() if k.startswith(('conv_block4.', 'fc1.'))}
-    rows = json.loads((ROOT / 'data/manifest.json').read_text())
+    rows = json.loads((ROOT / 'data/raw/manifest.json').read_text())
     y = torch.tensor([CLASSES.index(r['category']) for r in rows])
     masks = {name: np.array([int(r['fold']) in folds for r in rows]) for name, folds in [('train', [1, 2, 3]), ('validation', [4]), ('test', [5])]}
     source_sets = [{r['src_file'] for r, keep in zip(rows, masks[name]) if keep} for name in masks]
@@ -32,7 +36,7 @@ def main():
     # SECTION: cache
     # The first three blocks and their BN statistics never change. Cache them once.
     # Test representations are extracted independently; no fitting or statistics use them.
-    cache = ROOT / 'data/panns-prefix.pt'
+    cache = ROOT / 'data/cache/panns-prefix.pt'
     signature = hashlib.sha256(json.dumps(rows, sort_keys=True).encode()).hexdigest() + PRETRAIN_MD5
     if cache.exists():
         saved = torch.load(cache, map_location='cpu', weights_only=True)
@@ -43,7 +47,7 @@ def main():
         model.eval()
         with torch.no_grad():
             for start in range(0, len(rows), 8):
-                waves = np.stack([waveform32k(*sf.read(ROOT / 'data/audio' / r['filename'])) for r in rows[start:start + 8]])
+                waves = np.stack([waveform32k(*sf.read(ROOT / 'data/raw/audio' / r['filename'])) for r in rows[start:start + 8]])
                 batches.append(model.prefix(torch.from_numpy(waves).to(device)).cpu())
                 print(f'Frozen-prefix extraction: {min(start + 8, len(rows))}/{len(rows)}', flush=True)
         features = torch.cat(batches)
@@ -112,7 +116,7 @@ def main():
                     'predicted': CLASSES[int(np.argmax(probs))], 'probabilities': probs})
     # SECTION: save
     torch.save({'state_dict': best['state_dict'], 'classes': CLASSES,
-                'feature_version': PRETRAIN_VERSION}, OUT / 'sound-panns.pt')
+                'feature_version': PRETRAIN_VERSION}, MODEL_DIR / 'sound-panns.pt')
     (OUT / 'pretrained-metrics.json').write_text(json.dumps(report, indent=2) + '\n')
     import matplotlib.pyplot as plt
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))

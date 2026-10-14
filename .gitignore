@@ -18,7 +18,8 @@ DEMO.md
 .venv/
 __pycache__/
 .pytest_cache/
-data/
+/data/raw/
+/data/cache/
 
 # Local walkthrough recordings and browser screenshots
 output/

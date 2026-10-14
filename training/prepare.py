@@ -24,7 +24,7 @@ def download(url):
             time.sleep(attempt + 1)
 
 def main():
-    directory = ROOT / 'data/audio'
+    directory = ROOT / 'data/raw/audio'
     directory.mkdir(parents=True, exist_ok=True)
     metadata = download(f'{BASE}/meta/esc50.csv').decode()
     rows = [r for r in csv.DictReader(io.StringIO(metadata)) if r['category'] in CLASSES]
@@ -39,8 +39,8 @@ def main():
         return {**row, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
     with ThreadPoolExecutor(max_workers=8) as executor:
         manifest = list(executor.map(save, rows))
-    (ROOT / 'data/manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    (ROOT / 'artifacts/data-provenance.json').write_text(json.dumps({
+    (ROOT / 'data/raw/manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    (ROOT / 'training/results/data-provenance.json').write_text(json.dumps({
         'dataset': 'ESC-50 six-class subset', 'revision': REVISION,
         'source': BASE, 'recordings': manifest,
     }, indent=2) + '\n')

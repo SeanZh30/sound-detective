@@ -7,8 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 setup = '''from pathlib import Path
 import os, sys
 ROOT = Path.cwd().resolve()
-if not (ROOT / "training").exists():
-    ROOT = ROOT.parent
+ROOT = next((p for p in [ROOT, *ROOT.parents]
+             if (p / "training/model.py").is_file() and (p / "frontend/package.json").is_file()), ROOT)
 assert (ROOT / "training").exists(), "Open this notebook from the sound-detective repository."
 os.chdir(ROOT)
 if str(ROOT) not in sys.path:
@@ -21,11 +21,11 @@ def code(s): return nbf.v4.new_code_cell(s.strip())
 def save(name, cells):
     nb = nbf.v4.new_notebook(cells=cells, metadata=metadata)
     nbf.validate(nb)
-    nbf.write(nb, ROOT / 'notebooks' / name)
+    nbf.write(nb, ROOT / 'training/notebooks' / name)
 
 data_cell = '''# Download the 240 selected recordings only if they are not already present.
 from training.prepare import main as prepare_data
-if not (ROOT / 'data/manifest.json').exists():
+if not (ROOT / 'data/raw/manifest.json').exists():
     prepare_data()
 '''
 source = (ROOT / 'training/train.py').read_text()

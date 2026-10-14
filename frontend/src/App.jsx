@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import clips from './dataset.json';
+import clips from '../../data/samples/dataset.json';
 import PredictionPanel from './components/PredictionPanel.jsx';
 import TrainingReport from './components/TrainingReport.jsx';
 import { formatTime, readAnnotations, shuffle, STORAGE_KEY, validateAnnotation } from './model.js';

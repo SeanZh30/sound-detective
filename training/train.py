@@ -13,7 +13,11 @@ from training.features import CLASSES, LABELS, FEATURE_VERSION, INPUT_DIM, extra
 from training.model import SoundMLP
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'artifacts'
+OUT = ROOT / 'training/results'
+MODEL_DIR = ROOT / 'backend/model'
+OUT.mkdir(parents=True, exist_ok=True)
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
+(ROOT / 'data/cache').mkdir(parents=True, exist_ok=True)
 SEED = 7400
 
 def scores(y, predictions):
@@ -24,15 +28,15 @@ def scores(y, predictions):
 def main():
     torch.set_num_threads(2)
     torch.use_deterministic_algorithms(True)
-    rows = json.loads((ROOT / 'data/manifest.json').read_text())
-    cache = ROOT / 'data/features.npz'
+    rows = json.loads((ROOT / 'data/raw/manifest.json').read_text())
+    cache = ROOT / 'data/cache/features.npz'
     filenames = [r['filename'] for r in rows]
     if cache.exists():
         saved = np.load(cache)
         assert saved['version'].item() == FEATURE_VERSION and saved['filenames'].tolist() == filenames
         X = saved['X']
     else:
-        X = np.stack([extract_features(*sf.read(ROOT / 'data/audio' / r['filename'])) for r in rows])
+        X = np.stack([extract_features(*sf.read(ROOT / 'data/raw/audio' / r['filename'])) for r in rows])
         np.savez(cache, X=X, filenames=filenames, version=FEATURE_VERSION)
     y = np.array([CLASSES.index(r['category']) for r in rows])
     fold = np.array([int(r['fold']) for r in rows])
@@ -111,9 +115,9 @@ def main():
     report['beats_baseline'] = report['mlp']['test']['accuracy'] > report['baseline']['test']['accuracy']
     torch.save({'state_dict': selected['state'], 'hidden': selected['hidden'], 'dropout': selected['dropout'],
                 'mean': scaler.mean_.tolist(), 'scale': scaler.scale_.tolist(), 'classes': CLASSES,
-                'feature_version': FEATURE_VERSION}, OUT / 'sound-mlp.pt')
+                'feature_version': FEATURE_VERSION}, MODEL_DIR / 'sound-mlp.pt')
     (OUT / 'metrics.json').write_text(json.dumps(report, indent=2) + '\n')
-    np.savez(OUT / 'baseline.npz', coef=baseline[1].coef_, intercept=baseline[1].intercept_,
+    np.savez(MODEL_DIR / 'baseline.npz', coef=baseline[1].coef_, intercept=baseline[1].intercept_,
              mean=scaler.mean_, scale=scaler.scale_, classes=np.array(CLASSES), C=baseline[2])
     import matplotlib
     matplotlib.use('Agg')

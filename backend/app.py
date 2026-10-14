@@ -9,6 +9,8 @@ import soundfile as sf
 import torch
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from training.features import CLASSES, LABELS, FEATURE_VERSION, extract_features
 from training.model import SoundMLP
 
@@ -17,10 +19,16 @@ app = FastAPI(title='Sound Detective', version='3.0.0')
 MAX_BYTES = 5 * 1024 * 1024
 torch.set_num_threads(2)
 ModelName = Literal["mlp", "panns"]
+app.mount('/audio', StaticFiles(directory=ROOT / 'data/samples/audio'), name='sample-audio')
+
+@app.get('/ESC50-LICENSE.txt')
+def audio_license():
+    return FileResponse(ROOT / 'data/samples/ESC50-LICENSE.txt', media_type='text/plain')
+
 
 @lru_cache
 def load_model():
-    path = ROOT / 'artifacts/sound-mlp.pt'
+    path = ROOT / 'backend/model/sound-mlp.pt'
     if not path.exists():
         raise HTTPException(503, 'Model missing. Run python -m training.train first.')
     checkpoint = torch.load(path, map_location='cpu', weights_only=True)
@@ -33,7 +41,7 @@ def load_model():
 @lru_cache
 def load_pretrained_model():
     from training.pretrained import Cnn6Transfer, PRETRAIN_VERSION
-    path = ROOT / 'artifacts/sound-panns.pt'
+    path = ROOT / 'backend/model/sound-panns.pt'
     if not path.exists():
         raise HTTPException(503, 'Fine-tuned model missing. Run notebook 02 first.')
     checkpoint = torch.load(path, map_location='cpu', weights_only=True)
@@ -81,11 +89,11 @@ def health():
 
 @app.get('/api/metrics')
 def metrics():
-    path = ROOT / 'artifacts/metrics.json'
+    path = ROOT / 'training/results/metrics.json'
     if not path.exists():
         raise HTTPException(503, 'Training report not found.')
     report = json.loads(path.read_text())
-    pretrained_path = ROOT / 'artifacts/pretrained-metrics.json'
+    pretrained_path = ROOT / 'training/results/pretrained-metrics.json'
     if pretrained_path.exists():
         report['pretrained'] = json.loads(pretrained_path.read_text())
     return report
@@ -96,14 +104,14 @@ class ClipRequest(BaseModel):
 
 @app.post('/api/predict/clip')
 def predict_clip(request: ClipRequest):
-    clips = json.loads((ROOT / 'src/dataset.json').read_text())
-    extra = ROOT / 'src/test-clips.json'
+    clips = json.loads((ROOT / 'data/samples/dataset.json').read_text())
+    extra = ROOT / 'data/samples/test-clips.json'
     if extra.exists():
         clips += json.loads(extra.read_text())
     clip = next((clip for clip in clips if clip['id'] == request.clip_id), None)
     if not clip:
         raise HTTPException(404, 'Unknown recording.')
-    return {**predict((ROOT / 'public' / clip['file']).read_bytes(), request.model),
+    return {**predict((ROOT / 'data/samples' / clip['file']).read_bytes(), request.model),
             'split': 'test' if int(clip['fold']) == 5 else 'training'}
 
 @app.post('/api/predict/upload')
