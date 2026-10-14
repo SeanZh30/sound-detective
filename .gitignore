@@ -13,3 +13,13 @@ coverage/
 # Local deployment configuration and presentation preparation
 .openai/
 DEMO.md
+
+# Reproducible local training environment and downloaded source data
+.venv/
+__pycache__/
+.pytest_cache/
+data/
+
+# Local walkthrough recordings and browser screenshots
+output/
+!docs/DEMO.md

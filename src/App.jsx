@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import clips from './dataset.json';
+import PredictionPanel from './components/PredictionPanel.jsx';
+import TrainingReport from './components/TrainingReport.jsx';
 import { formatTime, readAnnotations, shuffle, STORAGE_KEY, validateAnnotation } from './model.js';
 import useAudio from './hooks/useAudio.js';
 import Library from './components/Library.jsx';
@@ -73,9 +75,9 @@ export default function App() {
   }, []);
 
   return <>
-    <header className="topbar"><a className="brand" href="./"><span className="brandmark" aria-hidden="true">▂▆▉▅</span><span>Sound Detective<small>ENVIRONMENTAL SOUND LAB</small></span></a><span className="edition">UVA DATA SCIENCE <b>HW 01</b></span><button className="outline" onClick={exportNotes}>↓ Export notes</button></header>
+    <header className="topbar"><a className="brand" href="./"><span className="brandmark" aria-hidden="true">▂▆▉▅</span><span>Sound Detective<small>ENVIRONMENTAL SOUND LAB</small></span></a><span className="edition">UVA DATA SCIENCE <b>HW 02</b></span><button className="outline" onClick={exportNotes}>↓ Export notes</button></header>
     <main>
-      <section className="intro"><div><p className="eyebrow">LISTEN. NOTICE. DISCOVER.</p><h1>Every sound tells a story.</h1><p className="subhead">Explore real recordings. Follow the waveform. Leave your observations.</p></div><div className="mode" role="group" aria-label="Listening mode"><button aria-pressed={!blind} onClick={() => changeMode(false)}>Explore sounds</button><button aria-pressed={blind} onClick={() => changeMode(true)}>Blind challenge <span>↗</span></button></div></section>
+      <section className="intro"><div><p className="eyebrow">LISTEN. NOTICE. DISCOVER.</p><h1>Every sound tells a story.</h1><p className="subhead">Explore real recordings. Train a neural ear. Discover what it hears.</p></div><div className="mode" role="group" aria-label="Listening mode"><button aria-pressed={!blind} onClick={() => changeMode(false)}>Explore sounds</button><button aria-pressed={blind} onClick={() => changeMode(true)}>Blind challenge <span>↗</span></button></div></section>
       <PixelCompanion playing={player.playing} blind={blind} guess={guesses[current.id]} />
       <section className="workspace" aria-label="Sound exploration workspace">
         <Library clips={visible} allClips={clips} current={current} blind={blind} filter={filter} notes={notes} guesses={guesses} onSelect={selectClip} onFilter={value => { setFilter(value); if (value !== 'all' && current.category !== value) selectClip(clips.find(c => c.category === value)); }} />
@@ -90,6 +92,8 @@ export default function App() {
         </section>
         <AnnotationPanel selection={selection} onSelect={setSelection} duration={current.duration} tag={tag} setTag={setTag} note={note} setNote={setNote} editing={editing} ready={player.ready} onSave={() => { try { saveAnnotation(); } catch (error) { notify(error.message); } }} onReset={() => resetForm()} />
       </section>
+      <PredictionPanel current={current} blind={blind} guessed={!!guesses[current.id]} />
+      <TrainingReport />
       <footer><span>Real recordings from <a href="https://github.com/karolpiczak/ESC-50" target="_blank" rel="noreferrer">ESC-50 / Karol J. Piczak</a> · <a href="/ESC50-LICENSE.txt" target="_blank" rel="noreferrer">Audio credits</a> · <a href="/pokemon/CREDITS.txt" target="_blank" rel="noreferrer">Pokémon art credits</a></span><span>UVA-inspired student project · Listen → Annotate → Discover</span></footer>
     </main><audio ref={player.audioRef} preload="auto" {...player.events} />{message && <div className="toast" role="status">{message}</div>}
   </>;

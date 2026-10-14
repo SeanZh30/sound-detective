@@ -1,0 +1,56 @@
+[
+  {
+    "id": "5-203128-A-0",
+    "file": "audio/5-203128-A-0.wav",
+    "category": "dog",
+    "label": "Dog bark",
+    "fold": 5,
+    "sourceId": "203128",
+    "duration": 5
+  },
+  {
+    "id": "5-181766-A-10",
+    "file": "audio/5-181766-A-10.wav",
+    "category": "rain",
+    "label": "Rain",
+    "fold": 5,
+    "sourceId": "181766",
+    "duration": 5
+  },
+  {
+    "id": "5-200461-A-11",
+    "file": "audio/5-200461-A-11.wav",
+    "category": "sea_waves",
+    "label": "Sea waves",
+    "fold": 5,
+    "sourceId": "200461",
+    "duration": 5
+  },
+  {
+    "id": "5-186924-A-12",
+    "file": "audio/5-186924-A-12.wav",
+    "category": "crackling_fire",
+    "label": "Crackling fire",
+    "fold": 5,
+    "sourceId": "186924",
+    "duration": 5
+  },
+  {
+    "id": "5-201194-A-38",
+    "file": "audio/5-201194-A-38.wav",
+    "category": "clock_tick",
+    "label": "Clock tick",
+    "fold": 5,
+    "sourceId": "201194",
+    "duration": 5
+  },
+  {
+    "id": "5-187979-A-21",
+    "file": "audio/5-187979-A-21.wav",
+    "category": "sneezing",
+    "label": "Sneezing",
+    "fold": 5,
+    "sourceId": "187979",
+    "duration": 5
+  }
+]

@@ -1,0 +1,1480 @@
+{
+  "seed": 7400,
+  "classes": [
+    "dog",
+    "rain",
+    "sea_waves",
+    "crackling_fire",
+    "clock_tick",
+    "sneezing"
+  ],
+  "labels": [
+    "Dog bark",
+    "Rain",
+    "Sea waves",
+    "Crackling fire",
+    "Clock tick",
+    "Sneezing"
+  ],
+  "feature_version": "logmel64-mfcc20-mean-std-v1",
+  "input_dim": 168,
+  "architecture": "168 \u2192 64 ReLU \u2192 6",
+  "config": {
+    "hidden": 64,
+    "dropout": 0.5,
+    "learning_rate": 0.03,
+    "epoch": 8
+  },
+  "optimizer": "SGD, momentum=0.9, weight_decay=0.001, batch_size=24",
+  "split": {
+    "train": "folds 1\u20133",
+    "validation": "fold 4",
+    "test": "fold 5"
+  },
+  "counts": {
+    "train": 144,
+    "validation": 48,
+    "test": 48
+  },
+  "selection": "Minimum validation cross-entropy; early stopping patience 45; max 300 epochs. Test fold excluded from selection.",
+  "trials": [
+    {
+      "hidden": 32,
+      "dropout": 0.2,
+      "learning_rate": 0.01,
+      "best_epoch": 29,
+      "validation_loss": 0.5357276797294617
+    },
+    {
+      "hidden": 32,
+      "dropout": 0.5,
+      "learning_rate": 0.01,
+      "best_epoch": 35,
+      "validation_loss": 0.4663059711456299
+    },
+    {
+      "hidden": 32,
+      "dropout": 0.2,
+      "learning_rate": 0.03,
+      "best_epoch": 19,
+      "validation_loss": 0.5020487904548645
+    },
+    {
+      "hidden": 32,
+      "dropout": 0.5,
+      "learning_rate": 0.03,
+      "best_epoch": 27,
+      "validation_loss": 0.48206281661987305
+    },
+    {
+      "hidden": 64,
+      "dropout": 0.2,
+      "learning_rate": 0.01,
+      "best_epoch": 38,
+      "validation_loss": 0.4166005551815033
+    },
+    {
+      "hidden": 64,
+      "dropout": 0.5,
+      "learning_rate": 0.01,
+      "best_epoch": 28,
+      "validation_loss": 0.42596435546875
+    },
+    {
+      "hidden": 64,
+      "dropout": 0.2,
+      "learning_rate": 0.03,
+      "best_epoch": 13,
+      "validation_loss": 0.41602420806884766
+    },
+    {
+      "hidden": 64,
+      "dropout": 0.5,
+      "learning_rate": 0.03,
+      "best_epoch": 8,
+      "validation_loss": 0.41196978092193604
+    },
+    {
+      "hidden": 128,
+      "dropout": 0.2,
+      "learning_rate": 0.01,
+      "best_epoch": 32,
+      "validation_loss": 0.43504300713539124
+    },
+    {
+      "hidden": 128,
+      "dropout": 0.5,
+      "learning_rate": 0.01,
+      "best_epoch": 44,
+      "validation_loss": 0.44182825088500977
+    },
+    {
+      "hidden": 128,
+      "dropout": 0.2,
+      "learning_rate": 0.03,
+      "best_epoch": 8,
+      "validation_loss": 0.4594214856624603
+    },
+    {
+      "hidden": 128,
+      "dropout": 0.5,
+      "learning_rate": 0.03,
+      "best_epoch": 12,
+      "validation_loss": 0.4952026903629303
+    }
+  ],
+  "baseline_trials": [
+    {
+      "C": 0.01,
+      "validation_accuracy": 0.8541666666666666
+    },
+    {
+      "C": 0.1,
+      "validation_accuracy": 0.875
+    },
+    {
+      "C": 1,
+      "validation_accuracy": 0.8958333333333334
+    },
+    {
+      "C": 10,
+      "validation_accuracy": 0.8541666666666666
+    },
+    {
+      "C": 100,
+      "validation_accuracy": 0.8541666666666666
+    }
+  ],
+  "baseline_C": 1,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.2546535730361938,
+      "train_accuracy": 0.5138888955116272,
+      "validation_loss": 1.2319515943527222,
+      "validation_accuracy": 0.5625
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.9805872440338135,
+      "train_accuracy": 0.625,
+      "validation_loss": 0.9523642063140869,
+      "validation_accuracy": 0.6666666865348816
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.9204676747322083,
+      "train_accuracy": 0.6180555820465088,
+      "validation_loss": 0.8784546852111816,
+      "validation_accuracy": 0.6666666865348816
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.6436348557472229,
+      "train_accuracy": 0.7291666865348816,
+      "validation_loss": 0.6594874262809753,
+      "validation_accuracy": 0.7708333134651184
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.6774023771286011,
+      "train_accuracy": 0.7152777910232544,
+      "validation_loss": 0.6472581028938293,
+      "validation_accuracy": 0.7708333134651184
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.58282470703125,
+      "train_accuracy": 0.7708333134651184,
+      "validation_loss": 0.6101725101470947,
+      "validation_accuracy": 0.75
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.42577898502349854,
+      "train_accuracy": 0.8472222089767456,
+      "validation_loss": 0.49194955825805664,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3426361680030823,
+      "train_accuracy": 0.875,
+      "validation_loss": 0.41196978092193604,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3609212338924408,
+      "train_accuracy": 0.8402777910232544,
+      "validation_loss": 0.48526644706726074,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.36097070574760437,
+      "train_accuracy": 0.8194444179534912,
+      "validation_loss": 0.47099801898002625,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.26547494530677795,
+      "train_accuracy": 0.9097222089767456,
+      "validation_loss": 0.4374331533908844,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.2320488542318344,
+      "train_accuracy": 0.9375,
+      "validation_loss": 0.48176828026771545,
+      "validation_accuracy": 0.875
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.24505148828029633,
+      "train_accuracy": 0.9027777910232544,
+      "validation_loss": 0.4992828071117401,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.2199939340353012,
+      "train_accuracy": 0.9236111044883728,
+      "validation_loss": 0.5665103197097778,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.2039003223180771,
+      "train_accuracy": 0.9097222089767456,
+      "validation_loss": 0.46687081456184387,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.21029260754585266,
+      "train_accuracy": 0.9236111044883728,
+      "validation_loss": 0.41943129897117615,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.16707773506641388,
+      "train_accuracy": 0.9513888955116272,
+      "validation_loss": 0.478133887052536,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.17005087435245514,
+      "train_accuracy": 0.9513888955116272,
+      "validation_loss": 0.5381200909614563,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 19,
+      "train_loss": 0.2014046162366867,
+      "train_accuracy": 0.9236111044883728,
+      "validation_loss": 0.538209855556488,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.16484710574150085,
+      "train_accuracy": 0.9375,
+      "validation_loss": 0.5587242245674133,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 21,
+      "train_loss": 0.14887577295303345,
+      "train_accuracy": 0.9444444179534912,
+      "validation_loss": 0.4674387276172638,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 22,
+      "train_loss": 0.13133381307125092,
+      "train_accuracy": 0.9513888955116272,
+      "validation_loss": 0.5053441524505615,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 23,
+      "train_loss": 0.1374056488275528,
+      "train_accuracy": 0.9444444179534912,
+      "validation_loss": 0.5303834676742554,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 24,
+      "train_loss": 0.1248776912689209,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.5863550901412964,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 25,
+      "train_loss": 0.14256957173347473,
+      "train_accuracy": 0.9513888955116272,
+      "validation_loss": 0.5136678218841553,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 26,
+      "train_loss": 0.10672247409820557,
+      "train_accuracy": 0.9861111044883728,
+      "validation_loss": 0.5038101673126221,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 27,
+      "train_loss": 0.14535708725452423,
+      "train_accuracy": 0.9583333134651184,
+      "validation_loss": 0.633263349533081,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 28,
+      "train_loss": 0.14522968232631683,
+      "train_accuracy": 0.9305555820465088,
+      "validation_loss": 0.569564938545227,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 29,
+      "train_loss": 0.1580042690038681,
+      "train_accuracy": 0.9513888955116272,
+      "validation_loss": 0.6963838934898376,
+      "validation_accuracy": 0.7916666865348816
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.20685751736164093,
+      "train_accuracy": 0.8958333134651184,
+      "validation_loss": 0.5796747803688049,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 31,
+      "train_loss": 0.09642335772514343,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.6008121371269226,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 32,
+      "train_loss": 0.07412522286176682,
+      "train_accuracy": 0.9930555820465088,
+      "validation_loss": 0.5243492722511292,
+      "validation_accuracy": 0.875
+    },
+    {
+      "epoch": 33,
+      "train_loss": 0.09111544489860535,
+      "train_accuracy": 0.9652777910232544,
+      "validation_loss": 0.6067177057266235,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 34,
+      "train_loss": 0.09319920092821121,
+      "train_accuracy": 0.9861111044883728,
+      "validation_loss": 0.5295359492301941,
+      "validation_accuracy": 0.875
+    },
+    {
+      "epoch": 35,
+      "train_loss": 0.0928565114736557,
+      "train_accuracy": 0.9652777910232544,
+      "validation_loss": 0.7366970181465149,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 36,
+      "train_loss": 0.0910196602344513,
+      "train_accuracy": 1.0,
+      "validation_loss": 0.6601220965385437,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 37,
+      "train_loss": 0.09489642828702927,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.5189239978790283,
+      "validation_accuracy": 0.8958333134651184
+    },
+    {
+      "epoch": 38,
+      "train_loss": 0.07222214341163635,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.5507593750953674,
+      "validation_accuracy": 0.8958333134651184
+    },
+    {
+      "epoch": 39,
+      "train_loss": 0.06045372039079666,
+      "train_accuracy": 0.9861111044883728,
+      "validation_loss": 0.5647370219230652,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.06306323409080505,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.5494241714477539,
+      "validation_accuracy": 0.8958333134651184
+    },
+    {
+      "epoch": 41,
+      "train_loss": 0.07622594386339188,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.6443758606910706,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 42,
+      "train_loss": 0.0986051931977272,
+      "train_accuracy": 0.9583333134651184,
+      "validation_loss": 0.9522389769554138,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 43,
+      "train_loss": 0.07276894897222519,
+      "train_accuracy": 0.9930555820465088,
+      "validation_loss": 0.816740095615387,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 44,
+      "train_loss": 0.07184629887342453,
+      "train_accuracy": 0.9930555820465088,
+      "validation_loss": 0.6958513259887695,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 45,
+      "train_loss": 0.08271376043558121,
+      "train_accuracy": 0.9791666865348816,
+      "validation_loss": 0.6276656985282898,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 46,
+      "train_loss": 0.07827585935592651,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.5838766098022461,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 47,
+      "train_loss": 0.06534207612276077,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.5938449501991272,
+      "validation_accuracy": 0.8541666865348816
+    },
+    {
+      "epoch": 48,
+      "train_loss": 0.08105046302080154,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.7469250559806824,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 49,
+      "train_loss": 0.07060887664556503,
+      "train_accuracy": 0.9861111044883728,
+      "validation_loss": 0.7133039832115173,
+      "validation_accuracy": 0.8125
+    },
+    {
+      "epoch": 50,
+      "train_loss": 0.05869856849312782,
+      "train_accuracy": 0.9930555820465088,
+      "validation_loss": 0.6892064213752747,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 51,
+      "train_loss": 0.060504402965307236,
+      "train_accuracy": 0.9930555820465088,
+      "validation_loss": 0.6732866764068604,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 52,
+      "train_loss": 0.0483965203166008,
+      "train_accuracy": 0.9861111044883728,
+      "validation_loss": 0.5943209528923035,
+      "validation_accuracy": 0.8333333134651184
+    },
+    {
+      "epoch": 53,
+      "train_loss": 0.06662032008171082,
+      "train_accuracy": 0.9722222089767456,
+      "validation_loss": 0.6792803406715393,
+      "validation_accuracy": 0.8333333134651184
+    }
+  ],
+  "mlp": {
+    "train": {
+      "accuracy": 0.875,
+      "macro_f1": 0.8744549950347343,
+      "confusion_matrix": [
+        [
+          22,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          22,
+          1,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          7,
+          17,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          23,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          3,
+          20,
+          1
+        ],
+        [
+          1,
+          0,
+          0,
+          1,
+          0,
+          22
+        ]
+      ],
+      "loss": 0.3426361680030823
+    },
+    "validation": {
+      "accuracy": 0.8541666666666666,
+      "macro_f1": 0.851062091503268,
+      "confusion_matrix": [
+        [
+          8,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          8,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          1,
+          5,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          2,
+          6
+        ]
+      ],
+      "loss": 0.41196978092193604
+    },
+    "test": {
+      "accuracy": 0.8541666666666666,
+      "macro_f1": 0.8583333333333334,
+      "confusion_matrix": [
+        [
+          6,
+          0,
+          0,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          8,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          7,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          7,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          6,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          7
+        ]
+      ],
+      "loss": 0.7046279907226562
+    }
+  },
+  "baseline": {
+    "train": {
+      "accuracy": 0.9930555555555556,
+      "macro_f1": 0.9930525401650021,
+      "confusion_matrix": [
+        [
+          24,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          23,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          24,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          24,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          24,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          24
+        ]
+      ]
+    },
+    "validation": {
+      "accuracy": 0.8958333333333334,
+      "macro_f1": 0.892114067849362,
+      "confusion_matrix": [
+        [
+          8,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          8,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          8,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          1,
+          5,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          7
+        ]
+      ]
+    },
+    "test": {
+      "accuracy": 0.75,
+      "macro_f1": 0.750930115635998,
+      "confusion_matrix": [
+        [
+          7,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          8,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          4,
+          3,
+          0
+        ],
+        [
+          2,
+          0,
+          0,
+          1,
+          4,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          2,
+          6
+        ]
+      ]
+    }
+  },
+  "test_predictions": [
+    {
+      "filename": "5-181766-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.0013018033932894468,
+        0.6349446773529053,
+        0.35879096388816833,
+        0.002363956533372402,
+        0.002094514202326536,
+        0.0005040501127950847
+      ]
+    },
+    {
+      "filename": "5-186924-A-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        0.0011795134050771594,
+        0.06184414029121399,
+        0.0016824142076075077,
+        0.8773252964019775,
+        0.05721070244908333,
+        0.0007579135708510876
+      ]
+    },
+    {
+      "filename": "5-187979-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.009489182382822037,
+        0.0002585895999800414,
+        0.002675571944564581,
+        0.004012395162135363,
+        0.015893740579485893,
+        0.9676705002784729
+      ]
+    },
+    {
+      "filename": "5-188655-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.0013649226166307926,
+        0.8428317904472351,
+        0.05370050296187401,
+        0.09102858603000641,
+        0.010190103203058243,
+        0.0008840751834213734
+      ]
+    },
+    {
+      "filename": "5-189212-A-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        8.866425923770294e-05,
+        0.001156653044745326,
+        0.00012138261081418023,
+        0.9744591116905212,
+        0.023900331929326057,
+        0.0002737445174716413
+      ]
+    },
+    {
+      "filename": "5-189237-A-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.011589687317609787,
+        0.0059903208166360855,
+        0.020184101536870003,
+        0.21012616157531738,
+        0.6313824653625488,
+        0.12072724103927612
+      ]
+    },
+    {
+      "filename": "5-193339-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.000631442409940064,
+        0.6166983842849731,
+        0.015555726364254951,
+        0.35453182458877563,
+        0.011834844015538692,
+        0.0007478218176402152
+      ]
+    },
+    {
+      "filename": "5-193473-A-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        0.003663464682176709,
+        0.22888340055942535,
+        0.0668550506234169,
+        0.6389957666397095,
+        0.0478922538459301,
+        0.013710095547139645
+      ]
+    },
+    {
+      "filename": "5-193473-B-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        0.003041711403056979,
+        0.14459598064422607,
+        0.017079606652259827,
+        0.7972321510314941,
+        0.031142964959144592,
+        0.006907586939632893
+      ]
+    },
+    {
+      "filename": "5-194533-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.007256815209984779,
+        0.0007223644643090665,
+        0.005930894985795021,
+        0.009242967702448368,
+        0.04025895148515701,
+        0.9365880489349365
+      ]
+    },
+    {
+      "filename": "5-194892-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.0007694087107665837,
+        0.8852682709693909,
+        0.03786928579211235,
+        0.06841806322336197,
+        0.007101972587406635,
+        0.0005729312542825937
+      ]
+    },
+    {
+      "filename": "5-195710-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.0021304881665855646,
+        0.8992765545845032,
+        0.05546639487147331,
+        0.03369209170341492,
+        0.008693083189427853,
+        0.0007414055871777236
+      ]
+    },
+    {
+      "filename": "5-198321-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.0003993730351794511,
+        0.8420276641845703,
+        0.1547711193561554,
+        0.0015886318869888783,
+        0.001019789488054812,
+        0.00019330882059875876
+      ]
+    },
+    {
+      "filename": "5-200461-A-11.wav",
+      "actual": "sea_waves",
+      "predicted": "sea_waves",
+      "probabilities": [
+        0.01406440231949091,
+        0.2552073001861572,
+        0.7057473063468933,
+        0.006834852509200573,
+        0.013805633410811424,
+        0.004340467508882284
+      ]
+    },
+    {
+      "filename": "5-200461-B-11.wav",
+      "actual": "sea_waves",
+      "predicted": "sea_waves",
+      "probabilities": [
+        0.005831731017678976,
+        0.2996359169483185,
+        0.6846134662628174,
+        0.002537298481911421,
+        0.005755203776061535,
+        0.0016263831639662385
+      ]
+    },
+    {
+      "filename": "5-201194-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.014861262403428555,
+        0.00032742845360189676,
+        0.0056130471639335155,
+        0.01934659108519554,
+        0.9400749206542969,
+        0.01977682113647461
+      ]
+    },
+    {
+      "filename": "5-201274-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.04801114276051521,
+        0.00014810638094786555,
+        0.0008699649479240179,
+        0.0019361901795491576,
+        0.04632851481437683,
+        0.9027060270309448
+      ]
+    },
+    {
+      "filename": "5-202220-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.0016882187919691205,
+        0.0002481408591847867,
+        0.0005913088680244982,
+        0.0020450549200177193,
+        0.9843186736106873,
+        0.011108622886240482
+      ]
+    },
+    {
+      "filename": "5-202898-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.0003054357075598091,
+        0.8753989934921265,
+        0.004729179199784994,
+        0.11445268988609314,
+        0.004952536895871162,
+        0.00016108898853417486
+      ]
+    },
+    {
+      "filename": "5-203128-A-0.wav",
+      "actual": "dog",
+      "predicted": "dog",
+      "probabilities": [
+        0.9706271290779114,
+        0.00011252782860537991,
+        0.00028785207541659474,
+        0.00011182208982063457,
+        0.028087645769119263,
+        0.0007730352226644754
+      ]
+    },
+    {
+      "filename": "5-203128-B-0.wav",
+      "actual": "dog",
+      "predicted": "dog",
+      "probabilities": [
+        0.9849623441696167,
+        2.2229925889405422e-05,
+        9.234721801476553e-05,
+        1.5056905795063358e-05,
+        0.01489190198481083,
+        1.612756386748515e-05
+      ]
+    },
+    {
+      "filename": "5-203739-A-10.wav",
+      "actual": "rain",
+      "predicted": "rain",
+      "probabilities": [
+        0.002270660363137722,
+        0.8213073015213013,
+        0.09045611321926117,
+        0.07297677546739578,
+        0.011351065710186958,
+        0.0016379591543227434
+      ]
+    },
+    {
+      "filename": "5-208030-A-0.wav",
+      "actual": "dog",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.2548340857028961,
+        0.012611105106770992,
+        0.059829797595739365,
+        0.011478263884782791,
+        0.6374460458755493,
+        0.0238006804138422
+      ]
+    },
+    {
+      "filename": "5-208624-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.2525632679462433,
+        0.052278514951467514,
+        0.20604228973388672,
+        0.1085049957036972,
+        0.33855000138282776,
+        0.04206094145774841
+      ]
+    },
+    {
+      "filename": "5-208810-A-11.wav",
+      "actual": "sea_waves",
+      "predicted": "sea_waves",
+      "probabilities": [
+        0.004806266166269779,
+        0.2815605401992798,
+        0.7012229561805725,
+        0.0028382076416164637,
+        0.006006772629916668,
+        0.003565325867384672
+      ]
+    },
+    {
+      "filename": "5-208810-B-11.wav",
+      "actual": "sea_waves",
+      "predicted": "sea_waves",
+      "probabilities": [
+        0.002494803862646222,
+        0.402132511138916,
+        0.5881862044334412,
+        0.0019494729349389672,
+        0.0036845505237579346,
+        0.0015524857444688678
+      ]
+    },
+    {
+      "filename": "5-209698-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.0040656100027263165,
+        0.006364732049405575,
+        0.004325483925640583,
+        0.2200278639793396,
+        0.7058213353157043,
+        0.059395018965005875
+      ]
+    },
+    {
+      "filename": "5-209833-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.007138197310268879,
+        0.0001311647502006963,
+        0.0013994843466207385,
+        0.006832104176282883,
+        0.9732438921928406,
+        0.011255134828388691
+      ]
+    },
+    {
+      "filename": "5-210571-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.04367449879646301,
+        0.0005412048194557428,
+        0.0051064868457615376,
+        0.002963727107271552,
+        0.015295490622520447,
+        0.9324185848236084
+      ]
+    },
+    {
+      "filename": "5-212181-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.3119075894355774,
+        0.004552594851702452,
+        0.03543361648917198,
+        0.018579697236418724,
+        0.3773193955421448,
+        0.25220710039138794
+      ]
+    },
+    {
+      "filename": "5-212454-A-0.wav",
+      "actual": "dog",
+      "predicted": "dog",
+      "probabilities": [
+        0.6875926852226257,
+        8.886829891707748e-05,
+        0.0004181013209745288,
+        0.00012274413893464953,
+        0.29659900069236755,
+        0.0151786208152771
+      ]
+    },
+    {
+      "filename": "5-213077-A-11.wav",
+      "actual": "sea_waves",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        0.0054862783290445805,
+        0.19670937955379486,
+        0.029607007279992104,
+        0.6929051876068115,
+        0.07045476883649826,
+        0.004837460350245237
+      ]
+    },
+    {
+      "filename": "5-213802-A-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        0.0003603919758461416,
+        0.09149971604347229,
+        0.0006445288890972733,
+        0.8978355526924133,
+        0.009567012079060078,
+        9.280193626182154e-05
+      ]
+    },
+    {
+      "filename": "5-213855-A-0.wav",
+      "actual": "dog",
+      "predicted": "dog",
+      "probabilities": [
+        0.8656933903694153,
+        6.964776548556983e-05,
+        5.7358916819794104e-05,
+        6.032808232703246e-05,
+        0.13401709496974945,
+        0.00010207181185251102
+      ]
+    },
+    {
+      "filename": "5-215658-A-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        0.0007649314939044416,
+        0.0008682258776389062,
+        0.00012003772280877456,
+        0.6980078220367432,
+        0.29425737261772156,
+        0.005981558933854103
+      ]
+    },
+    {
+      "filename": "5-215658-B-12.wav",
+      "actual": "crackling_fire",
+      "predicted": "crackling_fire",
+      "probabilities": [
+        0.000466769328340888,
+        0.0012977808946743608,
+        8.896482177078724e-05,
+        0.8130074143409729,
+        0.18320435285568237,
+        0.0019347522174939513
+      ]
+    },
+    {
+      "filename": "5-217158-A-0.wav",
+      "actual": "dog",
+      "predicted": "dog",
+      "probabilities": [
+        0.9999701976776123,
+        1.5190189515124075e-06,
+        1.9197885194444098e-05,
+        1.737446098104556e-08,
+        8.792802873358596e-06,
+        2.130702227987058e-07
+      ]
+    },
+    {
+      "filename": "5-219342-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "dog",
+      "probabilities": [
+        0.9650952816009521,
+        5.43513051525224e-05,
+        0.00010398578160675243,
+        4.214045839034952e-05,
+        0.034282054752111435,
+        0.00042218476301059127
+      ]
+    },
+    {
+      "filename": "5-219379-A-11.wav",
+      "actual": "sea_waves",
+      "predicted": "sea_waves",
+      "probabilities": [
+        0.016911668702960014,
+        0.13377781212329865,
+        0.8314344882965088,
+        0.0035597789101302624,
+        0.009749140590429306,
+        0.004567156080156565
+      ]
+    },
+    {
+      "filename": "5-219379-B-11.wav",
+      "actual": "sea_waves",
+      "predicted": "sea_waves",
+      "probabilities": [
+        0.006379356142133474,
+        0.2349248081445694,
+        0.751991331577301,
+        0.0013315058313310146,
+        0.004021389409899712,
+        0.0013516241451725364
+      ]
+    },
+    {
+      "filename": "5-219379-C-11.wav",
+      "actual": "sea_waves",
+      "predicted": "sea_waves",
+      "probabilities": [
+        0.006462997291237116,
+        0.1999385803937912,
+        0.7879142761230469,
+        0.0010559522779658437,
+        0.003620708826929331,
+        0.0010075514437630773
+      ]
+    },
+    {
+      "filename": "5-220026-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.0030089535284787416,
+        7.007554813753814e-05,
+        0.0004804290074389428,
+        0.0020350192207843065,
+        0.05823863670229912,
+        0.9361669421195984
+      ]
+    },
+    {
+      "filename": "5-220027-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.0008153539383783937,
+        3.400951754883863e-05,
+        0.0002564123133197427,
+        0.0018659232882782817,
+        0.06215653195977211,
+        0.9348717331886292
+      ]
+    },
+    {
+      "filename": "5-221518-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.00474569434300065,
+        0.0012667500413954258,
+        0.006842636503279209,
+        0.03127214312553406,
+        0.4274267852306366,
+        0.5284459590911865
+      ]
+    },
+    {
+      "filename": "5-221593-A-21.wav",
+      "actual": "sneezing",
+      "predicted": "sneezing",
+      "probabilities": [
+        0.02444305270910263,
+        0.0001941411173902452,
+        0.0008810805156826973,
+        0.0024364807177335024,
+        0.06095612421631813,
+        0.9110891222953796
+      ]
+    },
+    {
+      "filename": "5-231762-A-0.wav",
+      "actual": "dog",
+      "predicted": "dog",
+      "probabilities": [
+        0.9972225427627563,
+        3.769266186282039e-05,
+        6.804293661843985e-05,
+        1.0899428161792457e-05,
+        0.0013719422277063131,
+        0.0012888578930869699
+      ]
+    },
+    {
+      "filename": "5-235671-A-38.wav",
+      "actual": "clock_tick",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.02583232894539833,
+        0.018055807799100876,
+        0.00488250469788909,
+        0.1389055997133255,
+        0.7870012521743774,
+        0.02532246895134449
+      ]
+    },
+    {
+      "filename": "5-9032-A-0.wav",
+      "actual": "dog",
+      "predicted": "clock_tick",
+      "probabilities": [
+        0.005038321018218994,
+        4.3465421185828745e-05,
+        0.0001959260698640719,
+        0.0033536297269165516,
+        0.5882936716079712,
+        0.4030749797821045
+      ]
+    }
+  ],
+  "beats_baseline": true
+}

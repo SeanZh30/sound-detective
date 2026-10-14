@@ -60,3 +60,43 @@ input:focus,textarea:focus,select:focus{outline-color:var(--sds-yellow)}
 }
 @media(max-width:980px){.companion-bar{gap:10px;padding-right:14px}.partner-option{width:78px}.companion-mood{display:block;margin-left:0}.companion-scene{flex-basis:96px}}
 @media(max-width:650px){.companion-bar{flex-wrap:wrap;gap:0 8px;padding:8px 12px 14px}.companion-scene{flex-basis:80px;min-height:88px}.companion-sprite{width:96px;height:96px}.companion-dialogue{flex-basis:calc(100% - 96px)}.companion-party{width:100%;justify-content:center;gap:10px;border-top:1px solid #405360;margin-top:8px;padding-top:12px}.partner-option{width:calc((100% - 20px)/3);max-width:130px;min-height:78px}.partner-option img{width:56px;height:56px}.companion-kicker{font-size:.625rem;gap:6px}.companion-name{font-size:1rem}.companion-message{font-size:.8125rem}.star-one{left:0}.star-two{right:-2px}.companion-mood{font-size:.6875rem}}
+
+/* HW2 model interaction and experiment evidence. */
+.ai-panel { margin: 28px 0; padding: 28px; border: 1px solid #41505d; border-radius: 16px; background: #182630; color: #eff2f8; }
+.ai-panel h2 { margin: 4px 0 12px; font-size: 26px; }
+.ai-panel p { line-height: 1.65; }
+.ai-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.prediction-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 18px; margin: 24px 0 12px; }
+.prediction-controls label { display: grid; gap: 8px; font-size: 14px; }
+.prediction-controls select, .prediction-controls input { max-width: 100%; padding: 10px; background: #10181f; color: #eff2f8; border: 1px solid #72818e; border-radius: 6px; }
+.predict-button { background: #e57200; color: #10181f; font-weight: 700; padding: 12px 22px; border-radius: 7px; border: 0; }
+.predict-button:disabled { opacity: .6; cursor: wait; }
+.ai-caption { color: #b4c1cb; font-size: 13px; }
+.ai-error { color: #ffc1ad; }
+.ai-notice { padding: 16px; background: #24323e; border-radius: 8px; }
+.prediction-result { border-top: 1px solid #41505d; margin-top: 20px; padding-top: 20px; }
+.prediction-result h3 { font-size: 32px; margin: 8px 0; color: #fdda24; }
+.probabilities { display: grid; gap: 12px; max-width: 780px; }
+.probability-row { display: grid; grid-template-columns: 130px 1fr 58px; gap: 12px; align-items: center; font-size: 14px; }
+.probability-row meter { width: 100%; height: 18px; accent-color: #e57200; }
+.probability-row strong { text-align: right; }
+.metric-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+.metric-cards > div { display: grid; gap: 10px; padding: 20px; background: #24323e; border-radius: 10px; }
+.metric-cards strong { font-size: 34px; color: #fdda24; }
+.metric-cards small { color: #b4c1cb; }
+.curve-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.curve-grid figure { margin: 0; min-width: 0; }
+.curve-grid svg { width: 100%; }
+.curve-grid text { fill: #b4c1cb; font-size: 12px; }
+.curve-legend { display: flex; gap: 24px; font-size: 13px; }
+.curve-legend span:first-child { color: #e57200; }
+.curve-legend span:last-child { color: #fdda24; }
+.table-scroll { overflow-x: auto; }
+.ai-panel table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+.ai-panel caption { text-align: left; padding: 12px 0; font-weight: bold; }
+.ai-panel th, .ai-panel td { text-align: left; padding: 12px; border-bottom: 1px solid #41505d; }
+.ai-panel td.diagonal { color: #fdda24; background: #24323e; }
+.ai-panel details { margin-top: 22px; }
+.ai-panel summary { cursor: pointer; font-weight: 700; }
+.ai-panel audio { max-width: 100%; margin: 10px 0; }
+@media (max-width: 700px) { .ai-panel { padding: 18px; } .metric-cards, .curve-grid { grid-template-columns: 1fr; } .ai-heading { align-items: flex-start; flex-direction: column; } .probability-row { grid-template-columns: 100px 1fr 52px; gap: 6px; } }
