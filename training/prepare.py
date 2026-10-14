@@ -35,11 +35,16 @@ def main():
             content = download(f'{BASE}/audio/{row["filename"]}')
             if content[:4] != b'RIFF':
                 raise ValueError(f'Invalid WAV: {path.name}')
-            path.write_bytes(content)
+            temporary = path.with_suffix('.partial')
+            temporary.write_bytes(content)
+            temporary.replace(path)
         return {**row, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
     with ThreadPoolExecutor(max_workers=8) as executor:
         manifest = list(executor.map(save, rows))
-    (ROOT / 'data/raw/manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    manifest_path = ROOT / 'data/raw/manifest.json'
+    temporary = manifest_path.with_suffix('.tmp')
+    temporary.write_text(json.dumps(manifest, indent=2) + '\n')
+    temporary.replace(manifest_path)
     (ROOT / 'training/results/data-provenance.json').write_text(json.dumps({
         'dataset': 'ESC-50 six-class subset', 'revision': REVISION,
         'source': BASE, 'recordings': manifest,

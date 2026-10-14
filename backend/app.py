@@ -4,6 +4,9 @@ import io
 import json
 from pathlib import Path
 from typing import Literal
+from uuid import UUID
+from contextlib import asynccontextmanager
+from backend.training_jobs import jobs, TrainingConfig
 import numpy as np
 import soundfile as sf
 import torch
@@ -15,10 +18,15 @@ from training.features import CLASSES, LABELS, FEATURE_VERSION, extract_features
 from training.model import SoundMLP
 
 ROOT = Path(__file__).resolve().parents[1]
-app = FastAPI(title='Sound Detective', version='3.0.0')
+@asynccontextmanager
+async def lifespan(app):
+    yield
+    jobs.close()
+
+app = FastAPI(title='Sound Detective', version='3.0.0', lifespan=lifespan)
 MAX_BYTES = 5 * 1024 * 1024
 torch.set_num_threads(2)
-ModelName = Literal["mlp", "panns"]
+ModelName = Literal["mlp", "panns", "interactive"]
 app.mount('/audio', StaticFiles(directory=ROOT / 'data/samples/audio'), name='sample-audio')
 
 @app.get('/ESC50-LICENSE.txt')
@@ -26,9 +34,9 @@ def audio_license():
     return FileResponse(ROOT / 'data/samples/ESC50-LICENSE.txt', media_type='text/plain')
 
 
-@lru_cache
-def load_model():
-    path = ROOT / 'backend/model/sound-mlp.pt'
+@lru_cache(maxsize=4)
+def load_model(run_id=None):
+    path = ROOT / 'backend/model/sound-mlp.pt' if run_id is None else ROOT / 'backend/model/runs' / f'{UUID(str(run_id))}.pt'
     if not path.exists():
         raise HTTPException(503, 'Model missing. Run python -m training.train first.')
     checkpoint = torch.load(path, map_location='cpu', weights_only=True)
@@ -51,7 +59,12 @@ def load_pretrained_model():
     model.load_state_dict(checkpoint['state_dict']); model.eval()
     return model
 
-def predict(content, model_name='mlp'):
+def predict(content, model_name='mlp', run_id=None):
+    if model_name == 'interactive':
+        if run_id is None:
+            raise HTTPException(422, 'Choose a completed training run first.')
+        if jobs.get(str(run_id))['status'] != 'completed':
+            raise HTTPException(409, 'This training run is not ready for predictions.')
     if len(content) > MAX_BYTES:
         raise HTTPException(413, 'WAV must be smaller than 5 MB.')
     if content[:4] != b'RIFF' or content[8:12] != b'WAVE':
@@ -74,7 +87,7 @@ def predict(content, model_name='mlp'):
         if model_name == 'panns':
             logits = load_pretrained_model()(torch.from_numpy(features).unsqueeze(0))
         else:
-            model, mean, scale = load_model()
+            model, mean, scale = load_model(str(run_id) if model_name == 'interactive' else None)
             logits = model(torch.from_numpy((features - mean) / scale).unsqueeze(0))
         probabilities = logits.softmax(1)[0].tolist()
     index = int(np.argmax(probabilities))
@@ -101,6 +114,7 @@ def metrics():
 class ClipRequest(BaseModel):
     clip_id: str
     model: ModelName = "mlp"
+    run_id: UUID | None = None
 
 @app.post('/api/predict/clip')
 def predict_clip(request: ClipRequest):
@@ -111,10 +125,27 @@ def predict_clip(request: ClipRequest):
     clip = next((clip for clip in clips if clip['id'] == request.clip_id), None)
     if not clip:
         raise HTTPException(404, 'Unknown recording.')
-    return {**predict((ROOT / 'data/samples' / clip['file']).read_bytes(), request.model),
+    return {**predict((ROOT / 'data/samples' / clip['file']).read_bytes(), request.model, request.run_id),
             'split': 'test' if int(clip['fold']) == 5 else 'training'}
 
 @app.post('/api/predict/upload')
-def predict_upload(file: UploadFile = File(...), model: ModelName = Form("mlp")):
+def predict_upload(file: UploadFile = File(...), model: ModelName = Form("mlp"), run_id: UUID | None = Form(None)):
     content = file.file.read(MAX_BYTES + 1)
-    return {**predict(content, model), 'split': 'user upload (not part of the reported evaluation)'}
+    return {**predict(content, model, run_id), 'split': 'user upload (not part of the reported evaluation)'}
+
+
+@app.get('/api/training')
+def latest_training():
+    return {'job': jobs.latest(), 'completed_run': jobs.latest_completed()}
+
+@app.post('/api/training', status_code=202)
+def start_training(config: TrainingConfig):
+    return jobs.start(config)
+
+@app.get('/api/training/{run_id}')
+def training_status(run_id: UUID):
+    return jobs.get(str(run_id))
+
+@app.post('/api/training/{run_id}/stop')
+def stop_training(run_id: UUID):
+    return jobs.stop(str(run_id))

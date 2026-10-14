@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 const percent = value => `${(value * 100).toFixed(1)}%`;
 
-function Curve({ history, metric }) {
+export function Curve({ history, metric }) {
   const width = 600, height = 190, pad = 30;
-  const max = metric === 'accuracy' ? 1 : Math.max(...history.flatMap(h => [h.train_loss, h.validation_loss])) * 1.05;
+  const max = metric === 'accuracy' ? 1 : Math.max(0.001, ...history.flatMap(h => [h.train_loss, h.validation_loss])) * 1.05;
   const points = name => history.map((h, i) => `${pad + i / Math.max(1, history.length - 1) * (width - 2 * pad)},${height - pad - h[`${name}_${metric}`] / max * (height - 2 * pad)}`).join(' ');
   return <figure><figcaption>{metric === 'loss' ? 'Cross-entropy loss' : 'Accuracy'} vs. epoch</figcaption><svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Training and validation ${metric} curve`}><path d={`M${pad},15 V${height - pad} H${width - pad}`} fill="none" stroke="#91a1af" />{['train', 'validation'].map((name, i) => <polyline key={name} points={points(name)} fill="none" stroke={i ? '#FDDA24' : '#E57200'} strokeWidth="2.5" />)}<text x="0" y="20">{max.toFixed(1)}</text><text x="12" y={height - pad}>0</text><text x={pad} y={height - 6}>1</text><text x={width - 55} y={height - 6}>{history.length}</text><text x={width / 2} y={height - 6}>Epoch</text></svg></figure>;
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import clips from '../../data/samples/dataset.json';
 import PredictionPanel from './components/PredictionPanel.jsx';
 import TrainingReport from './components/TrainingReport.jsx';
+import TrainingLab from './components/TrainingLab.jsx';
 import { formatTime, readAnnotations, shuffle, STORAGE_KEY, validateAnnotation } from './model.js';
 import useAudio from './hooks/useAudio.js';
 import Library from './components/Library.jsx';
@@ -11,6 +12,7 @@ import PixelCompanion from './components/PixelCompanion.jsx';
 import { AnnotationList, AnnotationPanel } from './components/AnnotationPanel.jsx';
 
 export default function App() {
+  const [interactiveRun, setInteractiveRun] = useState(null);
   const [saved] = useState(() => readAnnotations(clips));
   const [notes, setNotes] = useState(saved.notes);
   const [message, setMessage] = useState(saved.warning);
@@ -92,7 +94,8 @@ export default function App() {
         </section>
         <AnnotationPanel selection={selection} onSelect={setSelection} duration={current.duration} tag={tag} setTag={setTag} note={note} setNote={setNote} editing={editing} ready={player.ready} onSave={() => { try { saveAnnotation(); } catch (error) { notify(error.message); } }} onReset={() => resetForm()} />
       </section>
-      <PredictionPanel current={current} blind={blind} guessed={!!guesses[current.id]} />
+      <TrainingLab onModelReady={setInteractiveRun} />
+      <PredictionPanel interactiveRun={interactiveRun} current={current} blind={blind} guessed={!!guesses[current.id]} />
       <TrainingReport />
       <footer><span>Real recordings from <a href="https://github.com/karolpiczak/ESC-50" target="_blank" rel="noreferrer">ESC-50 / Karol J. Piczak</a> · <a href="/ESC50-LICENSE.txt" target="_blank" rel="noreferrer">Audio credits</a> · <a href="/pokemon/CREDITS.txt" target="_blank" rel="noreferrer">Pokémon art credits</a></span><span>UVA-inspired student project · Listen → Annotate → Discover</span></footer>
     </main><audio ref={player.audioRef} preload="auto" {...player.events} />{message && <div className="toast" role="status">{message}</div>}

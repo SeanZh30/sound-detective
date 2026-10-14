@@ -75,7 +75,8 @@ Open http://127.0.0.1:5173. Vite forwards `/api` to the local backend. Both proc
 - Actionable connection/input errors; switching inputs cancels stale prediction results.
 - Annotation: implemented in HW1, using localStorage and JSON export.
 - Backend: FastAPI inference service implemented. Database: not implemented.
-- Optional interactive training: not implemented. The experiment dashboard displays a saved run; it is not a live training monitor.
+- Optional interactive training: implemented for the MLP (learning rate, epochs, hidden units, dropout).
+- Optional training monitor: live training/validation loss and accuracy, progress, final train/validation/test metrics, and predictions with the completed model.
 
 ## Dataset and split
 
@@ -90,6 +91,16 @@ Six ESC-50 categories: dog, rain, sea waves, crackling fire, clock tick, sneezin
 Official folds keep excerpts of the same source recording together. The training script asserts disjoint source IDs. No test data is used for normalization, early stopping, or model selection. The original 12 library clips belong to **training fold 1**; they are explicitly labeled as training examples in the prediction panel. Six additional fold-5 clips are bundled, one per class selected by the first filename in alphabetical order, independently of prediction quality. Reported test metrics use all 48 test clips.
 
 The per-recording source metadata and SHA-256 hashes are in `training/results/data-provenance.json`. Dataset attribution/license remains in `data/samples/ESC50-LICENSE.txt`, including the added test recordings.
+
+## Interactive training and real-time monitor (both optional challenges)
+
+Open **Interactive training lab** in the web app. Set learning rate (0.0001–0.2), epochs (1–500), hidden units (8–256), and dropout (0–0.8), then click **Start training**. A separate Python worker performs real forward/backward/SGD updates. The browser polls atomic progress snapshots every 350 ms; loss and accuracy curves update as epochs finish. This small MLP trains quickly, so the browser may show several epochs in each update; every epoch is recorded.
+
+Training uses the same 144/48/48 official-fold split. Train/validation metrics are live; test metrics remain pending until training ends and the checkpoint with lowest validation loss is restored. The final table includes loss, accuracy, and macro F1 on all three splits. Repeated interactive experiments are exploratory; compare configurations on validation results rather than tuning against the test scores.
+
+Select **Interactive MLP · latest completed run** in the prediction panel to use your trained model on a recording or uploaded WAV. The original MLP and PANNs remain selectable. A cancelled/new run does not remove the last completed model. Refreshing the page restores the latest run and last completed model. **Stop training** terminates the worker; failed/interrupted jobs are shown explicitly and can be retried.
+
+The first run downloads the public training subset if it is missing and builds the feature cache; later runs reuse it. An initial download requires internet. Each experiment writes its history/log to `training/results/runs/<id>/` and checkpoint to `backend/model/runs/<id>.pt`; these local experiment directories are Git-ignored. Published model weights and evaluation artifacts are not overwritten. Run this local teaching backend with a **single Uvicorn worker** so its one-job-at-a-time coordinator owns the subprocess. Shutdown stops an active worker. The existing Training & evaluation section remains a separate saved baseline report.
 
 ## Jupyter notebooks (recommended training workflow)
 
@@ -179,7 +190,10 @@ Backend tests check real inference against saved test probabilities, filename in
 | `training/finetune.py` | Partial fine-tuning, selection, evaluation, weight-change evidence |
 | `training/notebooks/` | Two executed notebooks with explicit training cells |
 | `backend/model/sound-panns.pt` | Complete fine-tuned PANNs checkpoint for offline inference |
-| `backend/app.py` | FastAPI prediction and metrics endpoints |
+| `backend/app.py` | FastAPI prediction, metrics, and training endpoints |
+| `backend/training_jobs.py` | Single-worker start/status/stop and recovery |
+| `training/interactive.py` | Real background MLP training with per-epoch snapshots |
+| `frontend/src/components/TrainingLab.jsx` | Parameter controls and live monitor |
 | `backend/model/sound-mlp.pt` | Trained weights and training-only scaling parameters |
 | `training/results/metrics.json` | Full curves, trial selection, metrics, and test predictions |
 | `frontend/src/components/PredictionPanel.jsx` | Interactive predictions and upload |

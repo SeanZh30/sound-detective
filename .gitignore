@@ -25,3 +25,7 @@ __pycache__/
 output/
 !docs/DEMO.md
 .ipynb_checkpoints/
+
+# Local interactive training experiments
+/backend/model/runs/
+/training/results/runs/
