@@ -27,3 +27,7 @@ Show blind challenge gating or return to the prediction panel.
 “Users obtain predictions directly in the web interface. The original library examples are training samples; the separate test examples were held out. Scores are not calibrated certainty, and unfamiliar sounds still get one of the six labels. The repository includes trained weights, reproduction commands, tests, and an AI-assistance disclosure.”
 
 Do not claim interactive training or a live training monitor: neither optional challenge is implemented. Submit the GitHub link and a video of at most three minutes through Canvas.
+
+## Updated two-model version
+
+Use `output/sound-detective-hw2-model-comparison.mp4` when available; the earlier video only demonstrates the MLP. Show the Prediction model selector and run the same recording with both models. Explain that PANNs is pretrained on AudioSet, then partially fine-tuned on our training fold: blocks 1–3 are frozen, while block 4, fc1, and the new head are updated. The executed Jupyter notebooks contain the actual training loops and outputs. Add the comparison: logistic regression 75.0%, MLP 85.4%, fine-tuned PANNs 95.8%, all on the same 48 clips. Keep the whole video below three minutes.

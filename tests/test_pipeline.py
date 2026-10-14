@@ -57,3 +57,32 @@ def test_backpropagation_updates_parameters_and_reduces_loss():
     for _ in range(30):
         optimizer.zero_grad(); loss = loss_fn(model(x), y); loss.backward(); optimizer.step()
     assert float(loss_fn(model(x), y).detach()) < initial / 2
+
+def test_finetuned_inference_matches_evaluation_and_weights_changed():
+    report = json.loads((ROOT / 'artifacts/pretrained-metrics.json').read_text())
+    assert report['pretrained_weight_changes']['conv_block4.conv1.weight'] > 0
+    assert report['pretrained_weight_changes']['fc1.weight'] > 0
+    clips = json.loads((ROOT / 'src/test-clips.json').read_text())
+    expected = {row['filename']: row for row in report['test_predictions']}
+    for clip in clips:
+        response = client.post('/api/predict/clip', json={'clip_id': clip['id'], 'model': 'panns'})
+        assert response.status_code == 200
+        result = response.json()
+        assert result['model'] == 'panns'
+        probs = [p['probability'] for p in result['probabilities']]
+        # Training used MPS and cached prefixes; serving runs the complete network on CPU.
+        np.testing.assert_allclose(probs, expected[clip['id'] + '.wav']['probabilities'], atol=2e-4)
+    data = (ROOT / 'public' / clips[0]['file']).read_bytes()
+    upload = client.post('/api/predict/upload', data={'model': 'panns'}, files={'file': ('unrelated.wav', data)})
+    reference = client.post('/api/predict/clip', json={'clip_id': clips[0]['id'], 'model': 'panns'})
+    assert upload.json()['probabilities'] == reference.json()['probabilities']
+    assert client.post('/api/predict/clip', json={'clip_id': clips[0]['id'], 'model': 'unknown'}).status_code == 422
+
+def test_pretrained_batchnorm_stays_frozen_during_training():
+    from training.pretrained import Cnn6Transfer
+    model = Cnn6Transfer()
+    model.freeze_prefix(); model.train()
+    assert model.training
+    assert all(not m.training for m in model.modules() if isinstance(m, torch.nn.BatchNorm2d))
+    assert not model.conv_block3.conv1.weight.requires_grad
+    assert model.conv_block4.conv1.weight.requires_grad

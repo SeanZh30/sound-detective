@@ -9,7 +9,7 @@ it('shows actual service probabilities and hides them when the clip changes', as
   fireEvent.click(screen.getByRole('button', { name: 'Identify sound' }));
   expect(await screen.findByRole('heading', { name: 'Rain' })).toBeInTheDocument();
   expect(screen.getByText('90.0%')).toBeInTheDocument();
-  expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ clip_id: 'clip-a' });
+  expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ clip_id: 'clip-a', model: 'mlp' });
   view.rerender(<PredictionPanel current={{ id: 'clip-b' }} blind={false} guessed={false} />);
   expect(screen.queryByRole('heading', { name: 'Rain' })).not.toBeInTheDocument();
 });
@@ -34,4 +34,15 @@ it('shows service errors and allows a retry', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Identify sound' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('Start the backend');
   expect(screen.getByRole('button', { name: 'Identify sound' })).toBeEnabled();
+});
+it('sends the selected model and clears the previous model result', async () => {
+  fetch.mockResolvedValue({ ok: true, json: async () => answer });
+  render(<PredictionPanel current={current} blind={false} guessed={false} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Identify sound' }));
+  await screen.findByRole('heading', { name: 'Rain' });
+  fireEvent.change(screen.getByLabelText('Prediction model'), { target: { value: 'panns' } });
+  expect(screen.queryByRole('heading', { name: 'Rain' })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Identify sound' }));
+  await screen.findByRole('heading', { name: 'Rain' });
+  expect(JSON.parse(fetch.mock.calls.at(-1)[1].body)).toEqual({ clip_id: 'clip-a', model: 'panns' });
 });

@@ -1,10 +1,10 @@
 # Sound Detective — HW2: Make Your Application Learn
 
-A React + FastAPI application that classifies environmental audio with a **trained PyTorch MLP**. Listen, inspect waveforms, annotate intervals, and ask the model to identify six sounds. The original HW1 viewer and blind-listening challenge are preserved.
+A React + FastAPI application that classifies environmental audio with a **PyTorch MLP trained from scratch and a fine-tuned AudioSet-pretrained PANNs Cnn6**. Listen, inspect waveforms, annotate intervals, and ask the model to identify six sounds. The original HW1 viewer and blind-listening challenge are preserved.
 
 ## Run the complete application
 
-Requirements: Python 3.11, Node.js >=22.12, npm. The trained weights and 18 demonstration WAVs are included; downloading the training dataset is unnecessary for inference. Internet is needed to install dependencies.
+Requirements: Python 3.11, Node.js >=22.12, npm. Both trained checkpoints and 18 demonstration WAVs are included; downloading the training dataset is unnecessary for inference. Internet is needed to install dependencies.
 
 ```sh
 python3 -m venv .venv
@@ -31,6 +31,8 @@ Open http://127.0.0.1:5173. Vite forwards `/api` to the local backend. Both proc
 ## HW2 features
 
 - Real inference from audio samples, not filenames or stored dataset answers.
+- Switch between the MLP and the partially fine-tuned PANNs Cnn6 in the web interface.
+- Two executed Jupyter notebooks expose the actual training loops and saved outputs.
 - Predict the current library recording, one of six held-out examples, or an uploaded WAV.
 - Display all six softmax scores, the predicted label, and test-example correctness.
 - Preserve blind-listening gameplay: predictions unlock after the user's guess.
@@ -54,7 +56,24 @@ Official folds keep excerpts of the same source recording together. The training
 
 The per-recording source metadata and SHA-256 hashes are in `artifacts/data-provenance.json`. Dataset attribution/license remains in `public/ESC50-LICENSE.txt`, including the added test recordings.
 
-## Model and training
+## Jupyter notebooks (recommended training workflow)
+
+Install notebook dependencies into the same virtual environment:
+
+```sh
+source .venv/bin/activate
+pip install -r requirements-notebook.txt
+jupyter lab
+```
+
+Open and run in order:
+
+1. [01 — MLP from scratch](notebooks/01_mlp_from_scratch.ipynb): features, model definition, explicit forward/backward/SGD loop, validation selection, logistic-regression baseline, final evaluation and export.
+2. [02 — Pretrained audio fine-tuning](notebooks/02_pretrained_audio_finetuning.ipynb): pretrained architecture and verified download, layer freezing, explicit fine-tuning loop, checkpoint selection, test evaluation and three-model comparison.
+
+Both notebooks were executed end to end, and their outputs are saved. They contain the training code rather than just calling an external training script. Use **Restart Kernel and Run All** to reproduce. Run 01 before 02. Outputs overwrite the corresponding model artifacts; restart the backend afterwards. GPU results may vary slightly across platforms. `scripts/build-notebooks.py` rebuilds notebook sources from the matching CLI implementation and clears outputs, so do not run it merely to view notebooks.
+
+## MLP model and training
 
 Pipeline: WAV → mono → resample to 22,050 Hz → pad/trim to 5 seconds → 64 log-mel bands and 20 MFCCs → temporal mean and standard deviation → **168 features** → training-only standardization → **Linear(168,64), ReLU, Dropout(0.5), Linear(64,6)**.
 
@@ -71,20 +90,37 @@ The network contains 11,206 trainable parameters and one hidden layer. Cross-ent
 | --- | ---: | ---: | ---: |
 | MLP | **85.42% (41/48)** | **14.58%** | **0.8583** |
 | Logistic regression | 75.00% (36/48) | 25.00% | 0.7509 |
+| Fine-tuned PANNs Cnn6 | **95.83% (46/48)** | **4.17%** | **0.9566** |
 
 The MLP improves accuracy by 10.42 percentage points on this split. It makes seven mistakes, including confusion between dog barks and clock ticks. Short transient sounds may have similar aggregated spectral features. Temporal averaging discards event order, and 144 training recordings are a small sample. These are six-class, single-split results, not a claim about full ESC-50 or arbitrary sounds. Softmax scores are not calibrated confidence, and unsupported sounds will still be assigned one of the six labels.
 
 ![Training and validation curves](artifacts/learning-curves.png)
 
-### Reproduce training
+## Pretrained audio model: PANNs Cnn6
+
+PANNs Cnn6 was pretrained for 527 AudioSet classes. We use its original [official AudioSet checkpoint](https://zenodo.org/records/3987831), not weights previously fine-tuned on ESC-50. The source checkpoint is verified against its published MD5 before loading. Source code and weight attribution are in [third_party/PANNs-NOTICE.md](third_party/PANNs-NOTICE.md).
+
+Input: mono audio resampled to 32 kHz, padded/trimmed to 5 seconds → power spectrogram (FFT 1024, hop 320) → 64 log-mel bands (50–14,000 Hz) → four pretrained 5×5 convolution blocks → frequency mean and temporal max+mean pooling → pretrained 512-unit dense layer → new six-class head.
+
+**Actual partial fine-tuning:** blocks 1–3 and all batch-normalization running statistics stay frozen; block 4, the original fc1, and the new six-class output layer are optimized. There are **3,543,558 trainable parameters**. The saved report records nonzero changes in both pretrained convolution and dense weights, so this is more than a frozen embedding/linear probe. Frozen prefixes are cached to save computation. Serving runs the full model from the waveform.
+
+One fixed schedule, chosen before inspecting this model's test result: AdamW; learning rate 1e-4 for pretrained layers and 1e-3 for the new head; weight decay 0.01; batch size 8; maximum 20 epochs; validation-loss early stopping patience 5. Selected checkpoint: epoch 20. Actual run used Apple MPS. Validation accuracy was 48/48; test accuracy was 46/48. The two test mistakes were crackling-fire recordings predicted as rain or sea waves.
+
+The three models share the same 144/48/48 split. PANNs uses extra pretraining data and a different architecture/input representation, so the comparison does not isolate the causal contribution of pretraining. The same test fold was already reported for the MLP; this is a fixed homework comparison, not a new blind benchmark. No parameters were changed based on the pretrained model's test score. Upstream pretraining overlap has not been independently audited.
+
+![Pretrained training curves](artifacts/pretrained-learning-curves.png)
+![Three-model comparison](artifacts/model-comparison.png)
+
+### Reproduce training with the CLI
 
 ```sh
 source .venv/bin/activate
 python -m training.prepare
 python -m training.train
+python -m training.finetune
 ```
 
-The download is approximately 106 MB. `data/` is ignored by Git. Training replaces `artifacts/sound-mlp.pt`, `baseline.npz`, `metrics.json`, and `learning-curves.png`; reload the backend after retraining because it caches the checkpoint. The complete pinned Python environment is in `requirements.txt`; minor numerical differences can occur on other platforms. Test data is evaluated after the declared validation search; do not tune the model based on test results.
+The download is approximately 106 MB. `data/` is ignored by Git. Training replaces `artifacts/sound-mlp.pt`, `baseline.npz`, `metrics.json`, and `learning-curves.png`; reload the backend after retraining because it caches the checkpoint. The pinned inference/training environment is in `requirements.txt`, with notebook tools in `requirements-notebook.txt`; minor numerical differences can occur on other platforms. Test data is evaluated after the declared validation search; do not tune the model based on test results.
 
 ### Validation
 
@@ -103,7 +139,11 @@ Backend tests check real inference against saved test probabilities, filename in
 | `training/prepare.py` | Pinned six-class dataset download and provenance |
 | `training/features.py` | Shared training/inference preprocessing |
 | `training/model.py` | Small MLP architecture |
-| `training/train.py` | Training, validation selection, baseline, final evaluation |
+| `training/train.py` | MLP training, validation selection, baseline, final evaluation |
+| `training/pretrained.py` | Adapted PANNs architecture and verified pretrained loading |
+| `training/finetune.py` | Partial fine-tuning, selection, evaluation, weight-change evidence |
+| `notebooks/` | Two executed notebooks with explicit training cells |
+| `artifacts/sound-panns.pt` | Complete fine-tuned PANNs checkpoint for offline inference |
 | `backend/app.py` | FastAPI prediction and metrics endpoints |
 | `artifacts/sound-mlp.pt` | Trained weights and training-only scaling parameters |
 | `artifacts/metrics.json` | Full curves, trial selection, metrics, and test predictions |
@@ -114,8 +154,9 @@ Backend tests check real inference against saved test probabilities, filename in
 
 ## AI assistance and references
 
-OpenAI Codex was used to implement the HW2 pipeline, backend, interface, tests, documentation, and demonstration materials. PyTorch autograd and standard librosa/scikit-learn implementations are used; the small MLP is defined in this repository. The student must review and understand this work and be able to explain it independently.
+OpenAI Codex was used to implement the HW2 pipeline, backend, interface, tests, documentation, and demonstration materials. PyTorch autograd and standard librosa/scikit-learn implementations are used; the small MLP is defined in this repository. The Cnn6 implementation is adapted from PANNs (MIT code); its official AudioSet weights are CC BY 4.0. See the third-party notice for modifications and attribution. The student must review and understand this work and be able to explain it independently.
 
+- [PANNs paper and audio transfer learning](https://arxiv.org/abs/1912.10211)
 - [ESC-50 dataset and official fold protocol](https://github.com/karolpiczak/ESC-50)
 - K. J. Piczak, *ESC: Dataset for Environmental Sound Classification*, ACM Multimedia, 2015. [DOI](https://doi.org/10.1145/2733373.2806390).
 - [PyTorch neural-network training tutorial](https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html)
