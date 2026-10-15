@@ -1,0 +1,19 @@
+Sound Detective — Pokémon pixel-art credits
+
+Characters: Pikachu (#025), Eevee (#133), and Jigglypuff (#039).
+Source: PokeAPI/sprites repository, Generation V / Black and White sprites.
+https://github.com/PokeAPI/sprites
+
+Unmodified original image files:
+https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/25.png
+https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/133.png
+https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/39.png
+
+The repository license is included as POKEAPI-LICENCE.txt. That repository
+license does not transfer ownership of Pokémon characters or artwork.
+Pokémon and Pokémon character names/artwork belong to their respective owners,
+including Nintendo, Creatures, Game Freak, and The Pokémon Company.
+
+Used as decorative companions in a non-commercial student project.
+Not affiliated with or endorsed by the Pokémon rights holders.
+The images are bundled locally; no third-party request is made during playback.

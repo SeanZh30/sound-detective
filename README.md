@@ -1,96 +1,218 @@
-# Sound Detective
+# Sound Detective — HW2: Make Your Application Learn
 
-A React web application for **DS7400 Deep Learning — Homework 1**. Explore real environmental recordings, inspect waveforms, annotate sound events, and try a blind-listening challenge.
+A React + FastAPI application that classifies environmental audio with a **PyTorch MLP trained from scratch and a fine-tuned AudioSet-pretrained PANNs Cnn6**. Listen, inspect waveforms, annotate intervals, and ask the model to identify six sounds. The original HW1 viewer and blind-listening challenge are preserved.
 
-## Run locally
+## Project organization
 
-Install Node.js 22.12 or later (Node 24 LTS recommended) and npm, then:
-
-```sh
-git clone https://github.com/SeanZh30/sound-detective.git
-cd sound-detective
-npm ci
-npm run dev
+```text
+sound-detective/
+├── frontend/                 # React + Vite application
+│   ├── src/
+│   ├── public/               # Icons and companion artwork
+│   └── package.json
+├── backend/
+│   ├── app.py                # FastAPI predictions, metrics and sample audio
+│   └── model/                # Trained MLP, fine-tuned PANNs and baseline weights
+├── data/
+│   ├── samples/              # 18 public demo WAVs, metadata and attribution
+│   ├── raw/                  # Downloaded training dataset (Git-ignored)
+│   └── cache/                # Features/source checkpoint (Git-ignored)
+├── training/
+│   ├── train.py              # MLP training and baseline evaluation
+│   ├── model.py              # Small MLP definition
+│   ├── finetune.py           # PANNs partial fine-tuning
+│   ├── pretrained.py         # Adapted PANNs architecture
+│   ├── features.py
+│   ├── prepare.py
+│   ├── notebooks/            # Two executed Jupyter notebooks
+│   └── results/              # Saved metrics, provenance and plots
+├── tests/                    # Python pipeline/API tests
+├── scripts/                  # Sample restoration and notebook generation
+├── third_party/              # PANNs licenses and attribution
+├── requirements.txt
+├── requirements-notebook.txt
+└── README.md
 ```
 
-Open http://127.0.0.1:5173. Stop with Ctrl+C. All 12 audio samples are bundled; after installation, the app works without third-party network requests.
+All commands below run from the repository root. React dependencies and build output live inside `frontend/`. FastAPI serves `/audio` directly from `data/samples/audio`; Vite proxies audio and API requests to it, so both servers are required. The sample WAVs are stored only once.
+
+## Run the complete application
+
+Requirements: Python 3.11, Node.js >=22.12, npm. Both trained checkpoints and 18 demonstration WAVs are included; downloading the training dataset is unnecessary for inference. Internet is needed to install dependencies.
 
 ```sh
-npm test          # React interaction and regression tests
-npm run build     # Production files in dist/
-npm run preview   # Preview the build at http://127.0.0.1:4173
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+npm --prefix frontend ci
 ```
 
-## What you can do
+Start the backend in terminal 1 (from the repository root):
 
-- Choose Pikachu, Eevee, or Jigglypuff as a pixel-art listening companion. Your choice stays in this browser. Playback triggers a gentle bounce; blind-challenge feedback changes the companion dialogue without revealing an unanswered clip. Animations respect reduced-motion preferences.
-- Browse 12 recordings, filter by category, and inspect the filename and audio metadata.
-- Play/pause, restart, seek, adjust volume and speed, and loop audio.
-- Inspect a real waveform decoded from WAV samples. Zoom from 1× to 5×, scroll horizontally, click to seek, or drag to select a time interval.
-- Use keyboard-accessible seek and interval inputs as alternatives to pointer dragging. Space toggles playback outside form controls.
-- Add labels and notes to an interval or the entire clip. Edit, delete, or jump to existing annotations.
-- Save annotations in browser localStorage and export them as JSON. Original annotations from version 1 are preserved using the same storage key and schema.
-- Switch to a randomized blind-listening challenge. Categories, filenames, and existing annotations are hidden. Only the first guess per recording counts during the page session.
+```sh
+source .venv/bin/activate
+python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
+```
 
-Challenge answers come from dataset labels, not a model. This is a learning activity rather than a secure assessment; the source assets contain labels.
+Start the frontend in terminal 2:
 
-## Data and attribution
+```sh
+npm --prefix frontend run dev
+```
 
-The app includes **12 unmodified recordings from ESC-50**, two per category: dog bark, rain, sea waves, crackling fire, clock tick, and sneezing. Each is 5 seconds, mono, 44.1 kHz, 16-bit PCM WAV.
+Open http://127.0.0.1:5173. Vite forwards `/api` to the local backend. Both processes must be running. For a production-build preview use `npm --prefix frontend run build && npm --prefix frontend run preview` with the backend still running. A static-only deployment cannot run the Python model.
 
-- Dataset: [ESC-50 by Karol J. Piczak](https://github.com/karolpiczak/ESC-50).
-- Citation: K. J. Piczak, *ESC: Dataset for Environmental Sound Classification*, ACM Multimedia, 2015. [DOI](https://doi.org/10.1145/2733373.2806390).
-- Dataset license: CC BY-NC; ESC-10 subset clips have CC BY terms. Preserve the [upstream license and individual recording attributions](public/ESC50-LICENSE.txt) when sharing this project. The WAVs are unchanged.
-- Metadata in `src/dataset.json` retains original filenames, source recording IDs, takes, categories, and fold IDs.
-- These are fold-1 demonstration samples, **not a training/test split**. Two sea-wave clips share a source recording. For later model training, use the full dataset and official folds; avoid source-recording leakage.
+## HW2 features
 
-Restore any missing WAVs with `python3 scripts/download-samples.py` (requires Python 3 and internet).
+- Real inference from audio samples, not filenames or stored dataset answers.
+- Switch between the MLP and the partially fine-tuned PANNs Cnn6 in the web interface.
+- Two executed Jupyter notebooks expose the actual training loops and saved outputs.
+- Predict the current library recording, one of six held-out examples, or an uploaded WAV.
+- Display all six softmax scores, the predicted label, and test-example correctness.
+- Preserve blind-listening gameplay: predictions unlock after the user's guess.
+- Display saved training/validation loss and accuracy curves, train/validation/test metrics, a shallow baseline comparison, and a test confusion matrix.
+- Actionable connection/input errors; switching inputs cancels stale prediction results.
+- Annotation: implemented in HW1, using localStorage and JSON export.
+- Backend: FastAPI inference service implemented. Database: not implemented.
+- Optional interactive training: implemented for the MLP (learning rate, epochs, hidden units, dropout).
+- Optional training monitor: live training/validation loss and accuracy, progress, final train/validation/test metrics, and predictions with the completed model.
 
-## React architecture
+## Dataset and split
 
-| File | Responsibility |
+Six ESC-50 categories: dog, rain, sea waves, crackling fire, clock tick, sneezing. There are **240 recordings**, 40 per class. Each original WAV is five seconds, mono, 44.1 kHz. Download source is pinned to revision `33c8ce9eb2cf0b1c2f8bcf322eb349b6be34dbb6`.
+
+| Split | Official folds | Recordings | Purpose |
+| --- | --- | ---: | --- |
+| Train | 1–3 | 144 | Fit feature scaling and model weights |
+| Validation | 4 | 48 | Select hyperparameters and checkpoint |
+| Test | 5 | 48 | Final evaluation only |
+
+Official folds keep excerpts of the same source recording together. The training script asserts disjoint source IDs. No test data is used for normalization, early stopping, or model selection. The original 12 library clips belong to **training fold 1**; they are explicitly labeled as training examples in the prediction panel. Six additional fold-5 clips are bundled, one per class selected by the first filename in alphabetical order, independently of prediction quality. Reported test metrics use all 48 test clips.
+
+The per-recording source metadata and SHA-256 hashes are in `training/results/data-provenance.json`. Dataset attribution/license remains in `data/samples/ESC50-LICENSE.txt`, including the added test recordings.
+
+## Interactive training and real-time monitor (both optional challenges)
+
+Open **Interactive training lab** in the web app. Set learning rate (0.0001–0.2), epochs (1–500), hidden units (8–256), and dropout (0–0.8), then click **Start training**. A separate Python worker performs real forward/backward/SGD updates. The browser polls atomic progress snapshots every 350 ms; loss and accuracy curves update as epochs finish. This small MLP trains quickly, so the browser may show several epochs in each update; every epoch is recorded.
+
+Training uses the same 144/48/48 official-fold split. Train/validation metrics are live; test metrics remain pending until training ends and the checkpoint with lowest validation loss is restored. The final table includes loss, accuracy, and macro F1 on all three splits. Repeated interactive experiments are exploratory; compare configurations on validation results rather than tuning against the test scores.
+
+Select **Interactive MLP · latest completed run** in the prediction panel to use your trained model on a recording or uploaded WAV. The original MLP and PANNs remain selectable. A cancelled/new run does not remove the last completed model. Refreshing the page restores the latest run and last completed model. **Stop training** terminates the worker; failed/interrupted jobs are shown explicitly and can be retried.
+
+The first run downloads the public training subset if it is missing and builds the feature cache; later runs reuse it. An initial download requires internet. Each experiment writes its history/log to `training/results/runs/<id>/` and checkpoint to `backend/model/runs/<id>.pt`; these local experiment directories are Git-ignored. Published model weights and evaluation artifacts are not overwritten. Run this local teaching backend with a **single Uvicorn worker** so its one-job-at-a-time coordinator owns the subprocess. Shutdown stops an active worker. The existing Training & evaluation section remains a separate saved baseline report.
+
+## Jupyter notebooks (recommended training workflow)
+
+Install notebook dependencies into the same virtual environment:
+
+```sh
+source .venv/bin/activate
+pip install -r requirements-notebook.txt
+jupyter lab
+```
+
+Open and run in order:
+
+1. [01 — MLP from scratch](training/notebooks/01_mlp_from_scratch.ipynb): features, model definition, explicit forward/backward/SGD loop, validation selection, logistic-regression baseline, final evaluation and export.
+2. [02 — Pretrained audio fine-tuning](training/notebooks/02_pretrained_audio_finetuning.ipynb): pretrained architecture and verified download, layer freezing, explicit fine-tuning loop, checkpoint selection, test evaluation and three-model comparison.
+
+Both notebooks were executed end to end, and their outputs are saved. They contain the training code rather than just calling an external training script. Use **Restart Kernel and Run All** to reproduce. Run 01 before 02. Outputs overwrite the corresponding model artifacts; restart the backend afterwards. GPU results may vary slightly across platforms. `scripts/build-notebooks.py` rebuilds notebook sources from the matching CLI implementation and clears outputs, so do not run it merely to view notebooks.
+
+## MLP model and training
+
+Pipeline: WAV → mono → resample to 22,050 Hz → pad/trim to 5 seconds → 64 log-mel bands and 20 MFCCs → temporal mean and standard deviation → **168 features** → training-only standardization → **Linear(168,64), ReLU, Dropout(0.5), Linear(64,6)**.
+
+The network contains 11,206 trainable parameters and one hidden layer. Cross-entropy consumes logits; softmax is applied only to display inference scores. `training/train.py` explicitly performs forward propagation, loss calculation, `loss.backward()`, and `optimizer.step()`.
+
+- Optimizer: SGD, learning rate 0.03, momentum 0.9, weight decay 0.001, batch size 24.
+- Seed: 7400, deterministic CPU training.
+- Declared validation search: hidden size {32,64,128}, learning rate {0.01,0.03}, dropout {0.2,0.5}; 12 runs total.
+- Maximum 300 epochs, early stopping after 45 epochs without validation-loss improvement.
+- Select by minimum validation cross-entropy. Selected checkpoint: **epoch 8**; the displayed run continues to epoch 53 before stopping.
+- Baseline: logistic regression on exactly the same features and split. C selected from {0.01,0.1,1,10,100} by validation accuracy, ties favor the first/smaller C; selected C=1.
+
+| Model | Test accuracy | Test error | Macro F1 |
+| --- | ---: | ---: | ---: |
+| MLP | **85.42% (41/48)** | **14.58%** | **0.8583** |
+| Logistic regression | 75.00% (36/48) | 25.00% | 0.7509 |
+| Fine-tuned PANNs Cnn6 | **95.83% (46/48)** | **4.17%** | **0.9566** |
+
+The MLP improves accuracy by 10.42 percentage points on this split. It makes seven mistakes, including confusion between dog barks and clock ticks. Short transient sounds may have similar aggregated spectral features. Temporal averaging discards event order, and 144 training recordings are a small sample. These are six-class, single-split results, not a claim about full ESC-50 or arbitrary sounds. Softmax scores are not calibrated confidence, and unsupported sounds will still be assigned one of the six labels.
+
+![Training and validation curves](training/results/learning-curves.png)
+
+## Pretrained audio model: PANNs Cnn6
+
+PANNs Cnn6 was pretrained for 527 AudioSet classes. We use its original [official AudioSet checkpoint](https://zenodo.org/records/3987831), not weights previously fine-tuned on ESC-50. The source checkpoint is verified against its published MD5 before loading. Source code and weight attribution are in [third_party/PANNs-NOTICE.md](third_party/PANNs-NOTICE.md).
+
+Input: mono audio resampled to 32 kHz, padded/trimmed to 5 seconds → power spectrogram (FFT 1024, hop 320) → 64 log-mel bands (50–14,000 Hz) → four pretrained 5×5 convolution blocks → frequency mean and temporal max+mean pooling → pretrained 512-unit dense layer → new six-class head.
+
+**Actual partial fine-tuning:** blocks 1–3 and all batch-normalization running statistics stay frozen; block 4, the original fc1, and the new six-class output layer are optimized. There are **3,543,558 trainable parameters**. The saved report records nonzero changes in both pretrained convolution and dense weights, so this is more than a frozen embedding/linear probe. Frozen prefixes are cached to save computation. Serving runs the full model from the waveform.
+
+One fixed schedule, chosen before inspecting this model's test result: AdamW; learning rate 1e-4 for pretrained layers and 1e-3 for the new head; weight decay 0.01; batch size 8; maximum 20 epochs; validation-loss early stopping patience 5. Selected checkpoint: epoch 20. Actual run used Apple MPS. Validation accuracy was 48/48; test accuracy was 46/48. The two test mistakes were crackling-fire recordings predicted as rain or sea waves.
+
+The three models share the same 144/48/48 split. PANNs uses extra pretraining data and a different architecture/input representation, so the comparison does not isolate the causal contribution of pretraining. The same test fold was already reported for the MLP; this is a fixed homework comparison, not a new blind benchmark. No parameters were changed based on the pretrained model's test score. Upstream pretraining overlap has not been independently audited.
+
+![Pretrained training curves](training/results/pretrained-learning-curves.png)
+![Three-model comparison](training/results/model-comparison.png)
+
+### Reproduce training with the CLI
+
+```sh
+source .venv/bin/activate
+python -m training.prepare
+python -m training.train
+python -m training.finetune
+```
+
+The download is approximately 106 MB. `data/raw/` (downloaded training WAVs/metadata) and `data/cache/` (features and source pretrained weights) are ignored by Git. Only the 18 public demonstration clips in `data/samples/` are committed. Training writes model checkpoints to `backend/model/` and metrics/plots to `training/results/`; reload the backend after retraining because it caches the checkpoint. The pinned inference/training environment is in `requirements.txt`, with notebook tools in `requirements-notebook.txt`; minor numerical differences can occur on other platforms. Test data is evaluated after the declared validation search; do not tune the model based on test results.
+
+### Validation
+
+```sh
+python -m pytest -q
+npm --prefix frontend test
+npm --prefix frontend run build
+```
+
+Backend tests check real inference against saved test probabilities, filename independence, invalid/silent/oversized uploads, source separation, and learning via backpropagation. Frontend tests cover the original viewer plus inference, blind-mode gating, stale requests, and backend errors. A browser walkthrough additionally verifies real HTTP inference, WAV upload, report rendering, and mobile layout.
+
+## Files
+
+| Path | Purpose |
 | --- | --- |
-| `src/App.jsx` | React application state, mode switching, annotation persistence/export, optional WebMCP integration |
-| `src/components/Library.jsx` | Category filter and recording selection |
-| `src/components/Waveform.jsx` | Canvas drawing, resizing, zoom, seeking, interval selection |
-| `src/components/AnnotationPanel.jsx` | Controlled annotation form and annotation list |
-| `src/components/PixelCompanion.jsx` | Partner selection, local preference, playback/answer feedback |
-| `src/components/Challenge.jsx` | Answer choices, feedback, and score |
-| `src/hooks/useAudio.js` | Audio element, playback settings, asynchronous decoding, cancellation/cleanup |
-| `src/model.js` | Annotation validation, reading legacy saved notes, shared helpers |
-| `src/styles.css` | Responsive layout and UVA-inspired palette |
-| `public/audio/` | Bundled original sample recordings |
-| `src/App.test.jsx` | Interaction and regression tests |
+| `training/prepare.py` | Pinned six-class dataset download and provenance |
+| `training/features.py` | Shared training/inference preprocessing |
+| `training/model.py` | Small MLP architecture |
+| `training/train.py` | MLP training, validation selection, baseline, final evaluation |
+| `training/pretrained.py` | Adapted PANNs architecture and verified pretrained loading |
+| `training/finetune.py` | Partial fine-tuning, selection, evaluation, weight-change evidence |
+| `training/notebooks/` | Two executed notebooks with explicit training cells |
+| `backend/model/sound-panns.pt` | Complete fine-tuned PANNs checkpoint for offline inference |
+| `backend/app.py` | FastAPI prediction, metrics, and training endpoints |
+| `backend/training_jobs.py` | Single-worker start/status/stop and recovery |
+| `training/interactive.py` | Real background MLP training with per-epoch snapshots |
+| `frontend/src/components/TrainingLab.jsx` | Parameter controls and live monitor |
+| `backend/model/sound-mlp.pt` | Trained weights and training-only scaling parameters |
+| `training/results/metrics.json` | Full curves, trial selection, metrics, and test predictions |
+| `frontend/src/components/PredictionPanel.jsx` | Interactive predictions and upload |
+| `frontend/src/components/TrainingReport.jsx` | Saved experiment dashboard |
 
-**Stack:** React, React DOM, Vite, JavaScript, CSS, HTMLAudioElement, Web Audio API, Canvas 2D, and localStorage. Tests use Vitest, Testing Library, and jsdom. Exact dependency versions are pinned in `package.json` and `package-lock.json`.
+## AI assistance and references
 
-React owns the UI and interaction state through components and hooks. Canvas is the only imperative drawing surface; audio is managed through a ref with effect cleanup. Aborted/stale requests cannot replace the waveform after switching clips.
+AI assistance: OpenAI Codex assisted with implementation, tests, documentation, and demonstration preparation. PyTorch autograd and standard librosa/scikit-learn implementations are used; the small MLP is defined in this repository. The Cnn6 implementation is adapted from PANNs (MIT code); its official AudioSet weights are CC BY 4.0. See the third-party notice for modifications and attribution.
 
-The optional `document.modelContext` integration exposes listing recordings, selecting one, and saving an annotation to compatible agents. Unsupported browsers retain all normal UI features.
-
-## UVA / School of Data Science visual direction
-
-The palette is inspired by the [UVA School of Data Science brand resources](https://datascience.virginia.edu/pages/school-brand-resources) and its June 2026 brand guide:
-
-| Color | Hex | Application |
-| --- | --- | --- |
-| SDS Navy | `#24323E` | Main listening workspace |
-| SDS Deep Navy | `#10181F` | Page background and dark surfaces |
-| UVA Orange | `#E57200` | Playback, primary actions, waveform |
-| SDS Yellow | `#FDDA24` | Selected interval, progress, small highlights |
-| SDS Gray | `#EFF2F8` | Main text |
-
-This is a student project with UVA-inspired colors, not an official university product. No institutional logos are reproduced. Franklin Gothic is used if installed, with system sans-serif fallbacks; no proprietary font files are bundled.
-
-## HW1 scope and limitations
-
-- **Interactive data viewer:** implemented.
-- **Interactive annotation:** implemented, including time intervals and JSON export.
-- **Backend/database:** not implemented. localStorage is browser storage and does not qualify as the backend/database extra-credit item.
-- **Deep learning:** not implemented or required for HW1. Future work can add a sound classifier and later FastAPI/SQLite persistence.
-
-Annotations remain on the current browser and origin. Localhost and the hosted app have separate storage. Export notes before clearing browser data or moving to another browser. Audio decoding and playback are tested with browser API mocks in automated tests; tests do not evaluate actual speaker output.
+- [PANNs paper and audio transfer learning](https://arxiv.org/abs/1912.10211)
+- [ESC-50 dataset and official fold protocol](https://github.com/karolpiczak/ESC-50)
+- K. J. Piczak, *ESC: Dataset for Environmental Sound Classification*, ACM Multimedia, 2015. [DOI](https://doi.org/10.1145/2733373.2806390).
+- [PyTorch neural-network training tutorial](https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html)
+- [librosa MFCC reference](https://librosa.org/doc/latest/generated/librosa.feature.mfcc.html)
+- [scikit-learn LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)
 
 ## Pixel-art credits
 
-Pikachu, Eevee, and Jigglypuff are displayed using unmodified Generation V sprites from [PokeAPI/sprites](https://github.com/PokeAPI/sprites). The original PNG files, upstream repository license, and per-file source URLs are bundled in [`public/pokemon/`](public/pokemon/CREDITS.txt). Pokémon artwork and characters remain the property of their respective owners. This is an unaffiliated non-commercial student project. Companion images are decorative and do not classify or alter the audio data.
+Pikachu, Eevee, and Jigglypuff are displayed using unmodified Generation V sprites from [PokeAPI/sprites](https://github.com/PokeAPI/sprites). The original PNG files, upstream repository license, and per-file source URLs are bundled in [`frontend/public/pokemon/`](frontend/public/pokemon/CREDITS.txt). Pokémon artwork and characters remain the property of their respective owners. This is an unaffiliated non-commercial student project. Companion images are decorative and do not classify or alter the audio data.
+
+## Dataset license
+
+ESC-50 audio is CC BY-NC, with CC BY terms for ESC-10 subset recordings. Preserve the upstream license and individual source attributions in `data/samples/ESC50-LICENSE.txt`. Original WAVs are unchanged. This is a non-commercial student project.
