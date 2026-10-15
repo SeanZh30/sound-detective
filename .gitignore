@@ -23,7 +23,6 @@ __pycache__/
 
 # Local walkthrough recordings and browser screenshots
 output/
-!docs/DEMO.md
 .ipynb_checkpoints/
 
 # Local interactive training experiments

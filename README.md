@@ -28,7 +28,6 @@ sound-detective/
 │   └── results/              # Saved metrics, provenance and plots
 ├── tests/                    # Python pipeline/API tests
 ├── scripts/                  # Sample restoration and notebook generation
-├── docs/                     # Demo guide and model explanation
 ├── third_party/              # PANNs licenses and attribution
 ├── requirements.txt
 ├── requirements-notebook.txt
@@ -198,12 +197,10 @@ Backend tests check real inference against saved test probabilities, filename in
 | `training/results/metrics.json` | Full curves, trial selection, metrics, and test predictions |
 | `frontend/src/components/PredictionPanel.jsx` | Interactive predictions and upload |
 | `frontend/src/components/TrainingReport.jsx` | Saved experiment dashboard |
-| `docs/DEMO.md` | Three-minute demonstration plan |
-| `docs/UNDERSTAND_THE_MODEL.md` | Explanation guide for the student |
 
 ## AI assistance and references
 
-OpenAI Codex was used to implement the HW2 pipeline, backend, interface, tests, documentation, and demonstration materials. PyTorch autograd and standard librosa/scikit-learn implementations are used; the small MLP is defined in this repository. The Cnn6 implementation is adapted from PANNs (MIT code); its official AudioSet weights are CC BY 4.0. See the third-party notice for modifications and attribution. The student must review and understand this work and be able to explain it independently.
+AI assistance: OpenAI Codex assisted with implementation, tests, documentation, and demonstration preparation. PyTorch autograd and standard librosa/scikit-learn implementations are used; the small MLP is defined in this repository. The Cnn6 implementation is adapted from PANNs (MIT code); its official AudioSet weights are CC BY 4.0. See the third-party notice for modifications and attribution.
 
 - [PANNs paper and audio transfer learning](https://arxiv.org/abs/1912.10211)
 - [ESC-50 dataset and official fold protocol](https://github.com/karolpiczak/ESC-50)
