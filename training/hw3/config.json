@@ -1,8 +1,24 @@
 {
   "dataset": "UrbanSound8K 1.0.0",
   "seed": 7400,
-  "models": ["baseline", "concat", "fixed", "gated"],
-  "test_folds": [1,2,3,4,5,6,7,8,9,10],
+  "models": [
+    "baseline",
+    "concat",
+    "fixed",
+    "gated"
+  ],
+  "test_folds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
   "validation": "next cyclic fold; other eight train",
   "epochs": 80,
   "batch_size": 128,
@@ -14,5 +30,6 @@
   "segments": 4,
   "selection": "lowest validation cross-entropy; all runs use all 80 epochs",
   "hypothesis": "An input-dependent gate combining global and ordered segment statistics can preserve transient temporal structure while suppressing unreliable local features. It may fail from overfitting, gate saturation, fixed-boundary sensitivity, or short-clip padding.",
-  "analysis": "Report all folds and models, paired fold differences, macro F1, class recall, gate distributions, training time and parameter counts; do not tune after test inspection."
+  "analysis": "Report all folds and models, paired fold differences, macro F1, class recall, gate distributions, training time and parameter counts; do not tune after test inspection.",
+  "diagnostic": "Reverse four local segments at evaluation only; no tuning or checkpoint selection from this diagnostic."
 }
