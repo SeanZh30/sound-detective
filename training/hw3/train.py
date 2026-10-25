@@ -24,7 +24,18 @@ def evaluate(model, x, y):
             'macro_f1': float(f1_score(y.numpy(), pred, labels=range(10), average='macro', zero_division=0)),
             'confusion_matrix': confusion_matrix(y.numpy(), pred, labels=range(10)).tolist()}, probabilities, gate.numpy().ravel()
 
-def main():
+def split_masks(folds, sources, test_fold):
+    validation_fold = test_fold % 10 + 1
+    test = folds == test_fold
+    validation = (folds == validation_fold) & ~np.isin(sources, sources[test])
+    train = (folds != test_fold) & (folds != validation_fold)
+    train &= ~np.isin(sources, np.concatenate([sources[test], sources[validation]]))
+    masks = {'train': train, 'validation': validation, 'test': test}
+    sets = {k: set(sources[m]) for k,m in masks.items()}
+    assert not (sets['train'] & sets['test'] or sets['train'] & sets['validation'] or sets['validation'] & sets['test'])
+    return masks
+
+def main(fold_ids=None):
     cfg = json.loads((HERE / 'config.json').read_text())
     config_hash = hashlib.sha256((HERE / 'config.json').read_bytes()).hexdigest()
     torch.set_num_threads(2); torch.use_deterministic_algorithms(True)
@@ -32,9 +43,10 @@ def main():
     assert saved['version'].item() == VERSION
     X, y, folds = saved['X'], saved['y'], saved['fold']
     (HERE / 'checkpoints').mkdir(exist_ok=True)
-    for fold in cfg['test_folds']:
+    for fold in (fold_ids if fold_ids is not None else cfg['test_folds']):
+        assert fold in cfg['test_folds']
         val = fold % 10 + 1
-        masks = {'train': (folds != fold) & (folds != val), 'validation': folds == val, 'test': folds == fold}
+        masks = split_masks(folds, saved['sources'], fold)
         scaler = StandardScaler().fit(X[masks['train']])
         xs = {k: torch.tensor(scaler.transform(X[m]), dtype=torch.float32) for k, m in masks.items()}
         ys = {k: torch.tensor(y[m], dtype=torch.long) for k, m in masks.items()}
@@ -103,4 +115,7 @@ def main():
             print(f'{variant} fold={fold} selected={best_epoch} test={report["metrics"]["test"]["accuracy"]:.4f} seconds={seconds:.1f}', flush=True)
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--folds', nargs='+', type=int)
+    main(parser.parse_args().folds)

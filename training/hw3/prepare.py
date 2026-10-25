@@ -74,7 +74,8 @@ def main():
     source_folds = {}
     for r in rows:
         source_folds.setdefault(r['fsID'], set()).add(r['fold'])
-    assert all(len(v) == 1 for v in source_folds.values()), 'Source crosses folds'
+    overlaps = {k: sorted(v) for k, v in source_folds.items() if len(v) > 1}
+    (OUT / 'source-audit.json').write_text(json.dumps({'cross_fold_sources': overlaps, 'affected_clips': sum(r['fsID'] in overlaps for r in rows)}, indent=2)+'\n')
     metadata_hash = digest(DATA / 'UrbanSound8K/metadata/UrbanSound8K.csv')
     if CACHE.exists():
         with np.load(CACHE) as c:
@@ -90,7 +91,7 @@ def main():
                 print(f'Features: {i+1}/8732', flush=True)
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(CACHE, X=np.stack(features), y=np.array([int(r['classID']) for r in rows]),
-                        fold=np.array([int(r['fold']) for r in rows]), version=VERSION,
+                        fold=np.array([int(r['fold']) for r in rows]), sources=np.array([r['fsID'] for r in rows]), version=VERSION,
                         metadata_sha256=metadata_hash, filenames=np.array([r['slice_file_name'] for r in rows]))
     (OUT / 'provenance.json').write_text(json.dumps({'url': URL, 'archive_md5': MD5,
         'metadata_sha256': metadata_hash, 'feature_version': VERSION, 'recordings': manifest}, indent=2)+'\n')

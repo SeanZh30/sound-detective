@@ -31,5 +31,6 @@
   "selection": "lowest validation cross-entropy; all runs use all 80 epochs",
   "hypothesis": "An input-dependent gate combining global and ordered segment statistics can preserve transient temporal structure while suppressing unreliable local features. It may fail from overfitting, gate saturation, fixed-boundary sensitivity, or short-clip padding.",
   "analysis": "Report all folds and models, paired fold differences, macro F1, class recall, gate distributions, training time and parameter counts; do not tune after test inspection.",
-  "diagnostic": "Reverse four local segments at evaluation only; no tuning or checkpoint selection from this diagnostic."
+  "diagnostic": "Reverse four local segments at evaluation only; no tuning or checkpoint selection from this diagnostic.",
+  "source_isolation": "Preserve official test fold; purge test sources from validation; purge test and retained validation sources from training. Audit found 5 multi-fold sources (152 clips) before any training."
 }

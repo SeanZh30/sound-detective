@@ -45,3 +45,12 @@ def test_variants_learn_from_gradients():
         for _ in range(25):
             opt.zero_grad(); loss=torch.nn.functional.cross_entropy(model(x),y);loss.backward();opt.step()
         assert torch.nn.functional.cross_entropy(model(x),y).item()<initial*.5
+
+def test_purge_retains_test_but_isolates_all_sources():
+    from training.hw3.train import split_masks
+    folds=np.array([1,1,2,2,3,3,4])
+    sources=np.array(['shared-test','a','shared-test','shared-val','shared-val','shared-test','clean'])
+    m=split_masks(folds,sources,1)
+    assert np.flatnonzero(m['test']).tolist()==[0,1]
+    assert np.flatnonzero(m['validation']).tolist()==[3]
+    assert np.flatnonzero(m['train']).tolist()==[6]

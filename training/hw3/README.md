@@ -35,7 +35,7 @@ Each segment contains means/stds from the same full-clip spectrogram, in chronol
 `config.json` was committed before training or inspecting test results. No test-driven tuning or discarded runs.
 
 - Ten outer evaluations, holding out each official fold once. No random clip reshuffling.
-- Test fold `k`, validation fold `k % 10 + 1`, train on the other eight folds. Source IDs are asserted disjoint across official folds.
+- Test fold `k`, validation fold `k % 10 + 1`, train on the other eight folds. An audit found five source IDs spanning multiple official folds (152 clips). Keep the original test fold; purge its sources from validation, then purge test and retained validation sources from training. Assert disjoint source IDs after this purge. All 8,732 clips still receive an out-of-fold test prediction. See `results/source-audit.json` and per-run counts.
 - This uses all ten official test folds, but holds one additional fold out for validation rather than training on all nine non-test folds. It is a controlled homework experiment, not a directly comparable reproduction of published nine-fold training scores.
 - Each of four variants trains for 80 epochs: 40 runs total, with identical examples, optimizer, epochs and batch size. The minimum-validation-cross-entropy checkpoint is restored before evaluation. The complete training budget is used even if validation loss rises.
 - SGD, LR 0.03, momentum 0.9, weight decay 0.001, batch size 128, hidden width 64, dropout 0.5, CPU deterministic operations, two PyTorch threads.
