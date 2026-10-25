@@ -1,3 +1,17 @@
+# HW3: Temporal feature gating on UrbanSound8K
+
+HW3 extends the HW2 sound-classification design to 8,732 urban audio clips and compares a global MLP, concatenation, fixed fusion, and learned gating under a predeclared ten-fold protocol.
+
+- [Experiment instructions, rationale and results](training/hw3/README.md)
+- [Executed training and analysis notebook](training/hw3/03_temporal_gating.ipynb)
+- [Two-page experiment report](training/hw3/report.pdf)
+- [Results viewer source](training/hw3/index.html): download the repository and open this HTML file, or serve the repository locally and visit `/training/hw3/`.
+- [All metrics and plots](training/hw3/results/) and [selected checkpoints](training/hw3/checkpoints/)
+
+The six-class HW2 web application below remains available. HW3 uses ten different urban-sound labels and separate experimental artifacts; its checkpoints are not interchangeable with HW2.
+
+---
+
 # Sound Detective — HW2: Make Your Application Learn
 
 A React + FastAPI application that classifies environmental audio with a **PyTorch MLP trained from scratch and a fine-tuned AudioSet-pretrained PANNs Cnn6**. Listen, inspect waveforms, annotate intervals, and ask the model to identify six sounds. The original HW1 viewer and blind-listening challenge are preserved.
