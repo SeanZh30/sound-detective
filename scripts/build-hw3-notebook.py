@@ -9,7 +9,7 @@ cells=[md('''# HW3: Global statistics versus temporal fusion
 
 **Question:** Does an input-dependent gate improve the HW2 MLP when ordered segment statistics are available?
 
-UrbanSound8K has 8,732 recordings and 10 categories. We retrain the HW2 design on this dataset. Four variants and ten official test folds are fixed in `config.json` before the results are inspected. Eight folds train; the next cyclic fold validates; the held-out fold tests. This differs from training on nine folds without a separate validation set.
+UrbanSound8K has 8,732 recordings and 10 categories. We retrain the HW2 design on this dataset. Four variants and ten official test folds are fixed in `config.json` before the results are inspected. Eight nominal folds train; the next cyclic fold validates; the held-out fold tests. Five original source IDs cross official folds, so related train/validation clips are purged to isolate sources while preserving all test clips. This differs from training on nine folds without a separate validation set.
 
 Run using the project Python environment. Existing run files with matching config hashes are reused; move them to a backup before an intentional complete retraining. The next cells expose the actual model and full optimization routine. AI assistance is documented in the README.'''),code('''from pathlib import Path
 import os, sys, json

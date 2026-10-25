@@ -31,7 +31,7 @@ rows=[['Model','Accuracy ± fold SD','Macro F1','Parameters','Seconds/run']]
 names={'baseline':'HW2 MLP','concat':'Concatenation','fixed':'Fixed fusion','gated':'Learned gate'}
 for v,m in models.items():rows.append([names[v],f"{m['accuracy']['mean']*100:.2f}% ± {m['accuracy']['std_across_folds']*100:.2f}",f"{m['macro_f1']['mean']:.3f}",f"{m['parameters']:,}",f"{m['mean_training_seconds']:.1f}"])
 t=Table(rows,colWidths=[113,144,73,98,112]);t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#eeeafa')),('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),('FONTSIZE',(0,0),(-1,-1),9),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6),('LINEBELOW',(0,0),(-1,-1),.3,colors.HexColor('#ddd8e8'))]));story.append(t)
-p('Accuracy and F1 are unweighted means over folds. SD describes partition variability, not a confidence interval. Timing includes training and epoch-level train/validation evaluation on this CPU.','SmallNote')
+p('Accuracy and F1 are unweighted means over folds. SD describes partition variability, not a confidence interval. Timing includes training/evaluation with four fold workers sharing the CPU; it is not an isolated speed benchmark.','SmallNote')
 story.append(PageBreak())
 p('Analysis: what the experiments actually support','Title')
 g=models['gated']['gate']
@@ -45,7 +45,7 @@ if best!='gated':
 else:
  p('The proposed gate has the highest mean accuracy in this fixed experiment. This supports further investigation, but does not prove a robust improvement: training partitions overlap, only one seed is used per fold, and larger models have more capacity than the baseline.')
 section('5. Mechanism, failures and alternative explanations')
-p(f"The local-branch gate has pooled mean {g['mean']:.3f}, SD {g['std']:.3f}, and range {g['min']:.3f}-{g['max']:.3f}. Only {100*g['saturation_fraction']:.1f}% of clips have gates below 0.05 or above 0.95. These coefficients describe branch weighting, not feature importance or causality. Class-dependent weighting can also reflect padding or background conditions.")
+p(f"The local-branch gate has pooled mean {g['mean']:.3f}, SD {g['std']:.3f}, and range {g['min']:.3f}-{g['max']:.3f}. {100*g['saturation_fraction']:.1f}% of clips have gates below 0.05 or above 0.95. This substantial saturation is consistent with hard routing and small sigmoid derivatives, a plausible failure mechanism rather than causal proof. These coefficients are not feature importance. Class-dependent weighting can also reflect padding or background conditions.")
 rev=models['gated']['reversed_accuracy_mean']
 p(f"Reversing segment order at evaluation changes gated accuracy from {models['gated']['accuracy']['mean']*100:.2f}% to {rev*100:.2f}%. This diagnostic is deliberately excluded from model selection. It changes positional distributions, including padding and position-specific scaling, so a drop is not conclusive evidence of meaningful chronological reasoning.")
 # Describe convergence and generalization at the selected checkpoints using actual measurements.
@@ -57,7 +57,7 @@ last=sum(r['history'][-1]['train_loss'] for r in rs)/10
 p(f"Mean gated training cross-entropy falls from {first:.3f} after epoch 1 to {last:.3f} after epoch 80. Selected-checkpoint train/validation accuracy averages {100*train:.2f}%/{100*val:.2f}%; this gap suggests generalization limitations. No nonfinite-loss failure occurred. Best-checkpoint selection limits over-training, but does not remove dataset shift or overfitting.")
 story.append(Image(str(OUT/'comparison.png'),width=540,height=196))
 section('6. What was learned and what comes next')
-p('Extra temporal information, branch structure and adaptive routing must be tested separately. More complexity is not automatically better. Next, repeat several initialization seeds and test overlapping or valid-duration segments to reduce padding/boundary effects. Choose those settings using validation data, without revisiting this test comparison as a tuning target. The repository includes every history, out-of-fold prediction, checkpoint, executed notebook and a reproducible config.')
+p('Extra temporal information, branch structure and adaptive routing must be tested separately. More complexity is not automatically better. Next, repeat seeds, add a parameter-matched global MLP, and test a gentler gate (temperature or regularization) plus valid-duration segments. These distinguish capacity, saturation and padding effects. Choose those settings using validation data, without revisiting this test comparison as a tuning target. The repository includes every history, out-of-fold prediction, checkpoint, executed notebook and a reproducible config.')
 p('Reference: J. Salamon, C. Jacoby & J. P. Bello, A Dataset and Taxonomy for Urban Sound Research, ACM Multimedia (2014). Dataset: doi.org/10.5281/zenodo.1203745. AI assistance: brainstorming, implementation, debugging and document preparation; design direction selected by the user.','SmallNote')
 def footer(canvas,doc):
  canvas.setFont('Helvetica',8);canvas.setFillColor(colors.HexColor('#777788'));canvas.drawString(36,22,'Sound Detective | HW3 experiment summary');canvas.drawRightString(576,22,str(doc.page))

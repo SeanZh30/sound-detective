@@ -15,7 +15,7 @@ The design adapts established multi-branch/gating principles to this task; it is
 - J. Salamon, C. Jacoby and J. P. Bello, *A Dataset and Taxonomy for Urban Sound Research*, ACM Multimedia, 2014.
 - 8,732 original clips (up to four seconds), compared with 240 in HW2: approximately 36.4 times as many. Ten classes instead of six. These are related environmental-sound tasks, not identical benchmarks. Do not compare HW3 percentages directly with HW2's 85.4%.
 - The original archive is approximately 6 GB, and extracted data requires additional disk space. Archive MD5 is checked against `9aa69802bbf37fb986f71ec1483a196e`. Per-clip SHA-256, labels, source IDs and folds are recorded in `results/provenance.json`.
-- Data and feature caches live in Git-ignored `data/raw/urbansound8k/` and `data/cache/`. Original license and Freesound attribution remain with the downloaded archive; no audio is republished by this HW3 experiment.
+- Data and feature caches live in Git-ignored `data/raw/urbansound8k/` and `data/cache/`. The archive README specifies CC BY-NC 3.0 (noncommercial attribution); original license and Freesound attribution remain with the downloaded archive; no audio is republished by this HW3 experiment.
 
 The baseline transfers the HW2 design, **168 → 64 ReLU → Dropout(0.5) → 10**, and retrains it on the new data. The ten-class head replaces the six-class head; pretrained HW2 weights are not reused. Like HW2, preprocessing is mono, 22,050 Hz, five seconds with zero padding, FFT 1024/hop 256, 64 log-Mel bands and 20 MFCCs, followed by temporal means and standard deviations. All official short clips are retained, including those below the web uploader's 0.25-second minimum. Feature standardization is fitted only on each training partition.
 
@@ -58,3 +58,47 @@ python -m pytest tests/test_hw3.py -q
 Download and extraction run once. Preparation verifies the archive and caches all features. Training saves each finished run independently and resumes completed runs only when their config hash matches. To rerun from scratch, move the prior `training/hw3/results/*-fold*.json` files and checkpoints into a local backup first. Do not mix new settings with old results. The executed notebook in this folder displays the model, training implementation and analysis.
 
 `results/` contains all epoch histories, out-of-fold predictions, confusion matrices, and plots. `checkpoints/` contains selected state dictionaries and the corresponding training-only feature scaling for all runs. The separate report distinguishes the original hypothesis from observed results.
+
+The recorded execution used four concurrent fold workers, each with two PyTorch threads. Wall times include resource contention and are descriptive, not isolated speed benchmarks. `results/split-counts.json` records source-purge exclusions for every fold.
+
+## Measured results and interpretation
+
+| Model | Mean test accuracy ± fold SD | Mean macro F1 | Parameters |
+|---|---:|---:|---:|
+| HW2 MLP baseline | 57.86% ± 5.71 | 0.5895 | 11,466 |
+| Concatenation | 60.46% ± 4.11 | 0.6101 | 54,474 |
+| Fixed fusion | **63.81% ± 5.23** | **0.6511** | 54,538 |
+| Learned gate (proposed) | 61.81% ± 4.67 | 0.6249 | 54,667 |
+
+The proposed gate improves over the retrained HW2 baseline by 3.95 percentage points (higher in nine folds, tied in one), but is **2.01 points below fixed fusion** and wins only two of ten folds against it. It beats concatenation by 1.35 points on average, but only five of ten folds. Thus the original claim that an adaptive gate should outperform fixed routing is not supported in this experiment. Fixed two-branch processing is the best observed design.
+
+Gate values have mean 0.767, SD 0.319; **49.94% are below 0.05 or above 0.95**. Near-hard routing and small sigmoid derivatives are plausible contributors, but this diagnostic does not establish causality. A temperature-controlled or regularized gate is a future experiment, not a post-test rescue performed here. The selected gated checkpoints average 79.22% training accuracy and 62.26% validation accuracy, consistent with generalization limits. Mean gated training loss still falls from 1.102 at epoch 1 to 0.181 at epoch 80: optimization occurs, but low training loss does not guarantee better held-out accuracy.
+
+Reversing local segment order drops mean gated accuracy from 61.81% to 31.99%. Because this also moves padded regions and applies the original position-specific scaler to shifted features, the drop cannot be attributed solely to meaningful event order. Local features and increased parameter count change together relative to the small baseline; a parameter-matched global-only MLP is another needed follow-up before claiming temporal information alone caused the gain. The fixed/gated comparison already controls shared architecture and almost all capacity.
+
+Limitations: one initialization per fold, overlapping training partitions, class imbalance and background differences, source-purged training sizes, position/padding sensitivity, and concurrent timing. Fold SD is not a statistical significance test. Results are retained without tuning on test scores. Suggested follow-up: multiple seeds, capacity-matched baseline, valid-duration segmentation, and gentler gates, all selected on validation data.
+
+![Architecture](results/architecture.png)
+![All fold scores](results/comparison.png)
+![Training curves](results/learning-curves.png)
+![Gate and class diagnostics](results/diagnostics.png)
+
+## Submission artifacts
+
+- `report.pdf`: separate two-page experiment summary.
+- `03_temporal_gating.ipynb`: executed notebook exposing the complete model/training code, reusing verified completed run files in the saved execution.
+- `index.html`: portable results viewer for the short video; open it locally or serve this directory.
+- All forty selected checkpoints and complete experiment JSON files are included.
+
+To rebuild derived artifacts after training:
+
+```bash
+python -m pip install -r requirements-notebook.txt
+python scripts/build-hw3-notebook.py
+python -m nbconvert --to notebook --execute --inplace training/hw3/03_temporal_gating.ipynb --ExecutePreprocessor.timeout=1800
+python scripts/build-hw3-viewer.py
+python -m pip install -r training/hw3/requirements-report.txt
+python scripts/build-hw3-report.py
+```
+
+The notebook builder clears notebook outputs; the following execution restores them using the saved experiments. The report builder needs ReportLab in addition to the training dependencies.

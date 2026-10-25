@@ -1,0 +1,7 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.11.5",
+  "fold_workers": 4,
+  "torch_threads_per_worker": 2,
+  "note": "Four independent fold groups ran concurrently. Wall times include contention and are descriptive, not isolated latency benchmarks."
+}
