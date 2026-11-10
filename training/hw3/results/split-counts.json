@@ -1,0 +1,72 @@
+[
+  {
+    "test_fold": 1,
+    "train": 6925,
+    "validation": 888,
+    "test": 873,
+    "excluded_from_train_validation": 46
+  },
+  {
+    "test_fold": 2,
+    "train": 6904,
+    "validation": 925,
+    "test": 888,
+    "excluded_from_train_validation": 15
+  },
+  {
+    "test_fold": 3,
+    "train": 6809,
+    "validation": 990,
+    "test": 925,
+    "excluded_from_train_validation": 8
+  },
+  {
+    "test_fold": 4,
+    "train": 6798,
+    "validation": 936,
+    "test": 990,
+    "excluded_from_train_validation": 8
+  },
+  {
+    "test_fold": 5,
+    "train": 6973,
+    "validation": 823,
+    "test": 936,
+    "excluded_from_train_validation": 0
+  },
+  {
+    "test_fold": 6,
+    "train": 7056,
+    "validation": 838,
+    "test": 823,
+    "excluded_from_train_validation": 15
+  },
+  {
+    "test_fold": 7,
+    "train": 7069,
+    "validation": 806,
+    "test": 838,
+    "excluded_from_train_validation": 19
+  },
+  {
+    "test_fold": 8,
+    "train": 7027,
+    "validation": 816,
+    "test": 806,
+    "excluded_from_train_validation": 83
+  },
+  {
+    "test_fold": 9,
+    "train": 7000,
+    "validation": 837,
+    "test": 816,
+    "excluded_from_train_validation": 79
+  },
+  {
+    "test_fold": 10,
+    "train": 6991,
+    "validation": 873,
+    "test": 837,
+    "excluded_from_train_validation": 31
+  }
+]

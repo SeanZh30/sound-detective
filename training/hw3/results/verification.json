@@ -1,0 +1,11 @@
+{
+  "python_tests_passed": 19,
+  "frontend_tests_passed": 18,
+  "notebook_code_cells_executed": 7,
+  "checkpoints_reloaded_and_predictions_verified": 40,
+  "validation_minimum_checkpoints_verified": 40,
+  "training_only_scaler_means_verified": 40,
+  "test_predictions_per_model": 8732,
+  "pdf_pages": 2,
+  "source_purge_tests_passed": true
+}
