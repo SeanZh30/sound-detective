@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import clips from '../../data/samples/dataset.json';
+import HW3 from './components/HW3.jsx';
 import PredictionPanel from './components/PredictionPanel.jsx';
 import TrainingReport from './components/TrainingReport.jsx';
 import TrainingLab from './components/TrainingLab.jsx';
@@ -12,6 +13,16 @@ import PixelCompanion from './components/PixelCompanion.jsx';
 import { AnnotationList, AnnotationPanel } from './components/AnnotationPanel.jsx';
 
 export default function App() {
+  const [hw3, setHw3] = useState(() => window.location.hash.startsWith('#hw3'));
+  useEffect(() => {
+    const update = () => setHw3(window.location.hash.startsWith('#hw3'));
+    window.addEventListener('hashchange', update);
+    return () => window.removeEventListener('hashchange', update);
+  }, []);
+  return hw3 ? <HW3 /> : <SoundLab />;
+}
+
+function SoundLab() {
   const [interactiveRun, setInteractiveRun] = useState(null);
   const [saved] = useState(() => readAnnotations(clips));
   const [notes, setNotes] = useState(saved.notes);
@@ -77,7 +88,7 @@ export default function App() {
   }, []);
 
   return <>
-    <header className="topbar"><a className="brand" href="./"><span className="brandmark" aria-hidden="true">▂▆▉▅</span><span>Sound Detective<small>ENVIRONMENTAL SOUND LAB</small></span></a><span className="edition">UVA DATA SCIENCE <b>HW 02</b></span><button className="outline" onClick={exportNotes}>↓ Export notes</button></header>
+    <header className="topbar"><a className="brand" href="./"><span className="brandmark" aria-hidden="true">▂▆▉▅</span><span>Sound Detective<small>ENVIRONMENTAL SOUND LAB</small></span></a><span className="edition">UVA DATA SCIENCE <b>HW 02 + 03</b></span><a className="outline hw3-entry" href="#hw3">HW3 Research ↗</a><button className="outline" onClick={exportNotes}>↓ Export notes</button></header>
     <main>
       <section className="intro"><div><p className="eyebrow">LISTEN. NOTICE. DISCOVER.</p><h1>Every sound tells a story.</h1><p className="subhead">Explore real recordings. Train a neural ear. Discover what it hears.</p></div><div className="mode" role="group" aria-label="Listening mode"><button aria-pressed={!blind} onClick={() => changeMode(false)}>Explore sounds</button><button aria-pressed={blind} onClick={() => changeMode(true)}>Blind challenge <span>↗</span></button></div></section>
       <PixelCompanion playing={player.playing} blind={blind} guess={guesses[current.id]} />

@@ -2,6 +2,8 @@
 
 HW3 extends the HW2 sound-classification design to 8,732 urban audio clips and compares a global MLP, concatenation, fixed fusion, and learned gating under a predeclared ten-fold protocol.
 
+- **Video presentation:** run `npm --prefix frontend run dev`, then open `http://127.0.0.1:5173/#hw3`. Five chapters cover motivation, design, protocol, results and failure analysis, with optional Chinese speaking notes. The original sound lab remains at `#hw2`. HW3 presentation assets are bundled and do not require the prediction backend.
+
 - [Experiment instructions, rationale and results](training/hw3/README.md)
 - [Executed training and analysis notebook](training/hw3/03_temporal_gating.ipynb)
 - [Two-page experiment report](training/hw3/report.pdf)

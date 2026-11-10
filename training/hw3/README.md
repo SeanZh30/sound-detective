@@ -1,12 +1,12 @@
-# HW3: Does temporal information need a learned gate?
+# HW3: Global and local features for sound classification
 
 This experiment extends the HW2 environmental-sound MLP to **UrbanSound8K (8,732 clips, 10 classes)**, then tests global/temporal feature fusion. HW2's six-class app, weights, and results remain unchanged. The HW3 models predict a different label set and are not loaded into the HW2 web app.
 
-## Hypothesis, fixed before results
+## Why I tried this
 
 The HW2 representation averages over time, discarding temporal structure. Four ordered segments may preserve short events and changes within a recording. An input-dependent gate may suppress unreliable segment features while retaining useful local evidence. Expected failure modes include overfitting, sigmoid saturation, sensitivity to segment boundaries, and padded short clips. Gates are routing coefficients, not causal explanations or calibrated confidence.
 
-The design adapts established multi-branch/gating principles to this task; it is not a claim to invent gating. AI assisted with brainstorming, implementation, and analysis. The user selected the temporal-feature direction and requested a larger dataset. The student should review the results and make their own interpretation before submission.
+The design uses established multi-branch and gating ideas. The question here is whether an input-dependent weight helps this particular combination of global and segment statistics. Codex assisted with brainstorming, implementation, debugging, analysis and writing.
 
 ## Data and relationship to HW2
 
@@ -61,7 +61,7 @@ Download and extraction run once. Preparation verifies the archive and caches al
 
 The recorded execution used four concurrent fold workers, each with two PyTorch threads. Wall times include resource contention and are descriptive, not isolated speed benchmarks. `results/split-counts.json` records source-purge exclusions for every fold.
 
-## Measured results and interpretation
+## Results and what they mean
 
 | Model | Mean test accuracy ± fold SD | Mean macro F1 | Parameters |
 |---|---:|---:|---:|
